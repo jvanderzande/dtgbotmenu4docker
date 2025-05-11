@@ -2,6 +2,11 @@
 
 DTGBOTMENU Telegram Bot for Domoticz on Docker
 
+## History
+This version is a continuation of the DTGBOT originally started by Simon Gibbon [DTGBOT Project](https://github.com/steps39/dtgbot).  
+It started as a command-line Telegram Bot and I have added the Room Menu functionality over time to allow for simple clicking.
+I have since then converted the whole setup to a Docker container and added a Web-frontend to support simple setup and configuration of the DTGBOT.
+
 ## Requirements
 
 - A running Docker server to host this container.
@@ -48,7 +53,7 @@ It should look like this:
 ########## Docker ############
 2025-05-11 11:01:07 :  ####################################################################################
 2025-05-11 11:01:07 :  Load DTGBOT configuration files
-2025-05-11 11:01:07 :  Start DTGBOT (git info:v0.9.0)
+2025-05-11 11:01:07 :  Start DTGBOT (git release:v0.9.1)
 2025-05-11 11:01:07 :  DTGBOT LogFile set to    :/data/logs/dtgbot.log
 2025-05-11 11:01:07 :  Starting dtgbot_version   :1.0 202505081503
 2025-05-11 11:01:07 :  dtg_main_functions_version:1.0 202505101611
@@ -60,7 +65,7 @@ It should look like this:
 2025-05-11 11:01:07 :  +> Initial test connection to Telegram successfull.
 2025-05-11 11:01:07 :  << All connections working, dtgbot will start.
 2025-05-11 11:01:07 :  Domoticz version :2024.7  Revision:16678  BuildDate:20240713
-2025-05-11 11:01:07 :  Domoticz url used:http://192.168.0.29:8080
+2025-05-11 11:01:07 :  Domoticz url used:http://192.168.0.111:8080
 2025-05-11 11:01:08 :  Domoticz language is set to:en
 2025-05-11 11:01:08 :  #> Starting message loop with Telegram servers
 2025-05-11 11:01:09 :  -> In contact with Telegram servers. Start Longpoll loop every 30 seconds.
@@ -102,7 +107,7 @@ When dtgbotmenu is up and running it is ready to be configured.
 
 Docker image: https://hub.docker.com/r/jvdzande/dtgbotmenu  
 Github: https://github.com/jvanderzande/dtgbotmenu4docker  
-Domoticz Forum:
+Domoticz Forum: (will be added after a new topic is opened)
 
 In case you want to buy me a nice dram of peaty Whisky: :smile:  
 [![paypal](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://www.paypal.me/jvdzande)

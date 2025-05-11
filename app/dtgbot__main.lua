@@ -285,7 +285,7 @@ local yreturn_status, yresult =
 
 			-- ==========================================
 			-- set logfile to datapath
-			Print_to_Log(-1, 'Start DTGBOT (git info:' .. (os.getenv('GIT_RELEASE') or '?') .. ')')
+			Print_to_Log(-1, 'Start DTGBOT (git release:' .. (os.getenv('GIT_RELEASE') or '?') .. ')')
 			if _G.BotLogFile ~= '' then
 				Print_to_Log(-1, 'DTGBOT LogFile set to    :' .. _G.BotLogFile)
 			end
