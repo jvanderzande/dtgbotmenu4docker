@@ -1,6 +1,6 @@
 *.log
 *.bak
-dtgbotmenu4docker.code-workspace
+*.code-workspace
 app/web/php.ini
 backup/
 local/

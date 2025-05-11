@@ -6,11 +6,11 @@ _G.msgids_removed = {}
 	This is a spinoff of the oroginal DTGBOT developed by s.gibbon https://github.com/steps39
 	GNU GENERAL PUBLIC LICENSE
 ]]
--- ===========================================================================================================
+-- ==================================================================================================
 -- dtgbot initialisation step to:
 --  initialise room, device, scene and variable list from Domoticz
 --  load the available modules
--- ===========================================================================================================
+-- ==================================================================================================
 function _G.CheckTelegramConnection(loglevel)
 	loglevel = loglevel or 1
 	_G.Persistent.TelegramBotOffset = _G.Persistent.TelegramBotOffset or 0
@@ -76,8 +76,7 @@ function _G.DtgBot_Initialise()
 	local telegram_connected = false
 	local domoticz_connected = false
 	local loopcount = 0
-	Print_to_Log(-1, '> ==================================================================')
-	Print_to_Log(-1, '> ==== Start Initial connectivity check for Domoticz and Telegram ==')
+	Print_to_Log(-1, '>> Start Initial connectivity check for Domoticz and Telegram ==')
 
 	-- remove indicator file and only create when both domotcz and Telegram successfully connected.
 	while not telegram_connected or not domoticz_connected do
@@ -89,25 +88,24 @@ function _G.DtgBot_Initialise()
 		--
 		if not _G['DomoticzUrl'] or _G['DomoticzUrl'] == ''
 			or not _G['TelegramBotToken'] or _G['TelegramBotToken'] == '' then
-			Print_to_Log(-1, '!!!> Domoticz URL and/or TelegramBotToken not set yet.')
+			Print_to_Log(-1, '!> Domoticz URL and/or TelegramBotToken not set yet.')
 		else
 			domoticz_connected = Domoticz_Version(-1)
 			if domoticz_connected then
 				Print_to_Log(-1, '+> Initial test connection to Domoticz successfull.')
 			else
-				Print_to_Log(-1, '!!!> Initial test connection to Domoticz failed!')
+				Print_to_Log(-1, '!> Initial test connection to Domoticz failed!')
 			end
 			telegram_connected = _G.CheckTelegramConnection(-1)
 			if telegram_connected then
 				Print_to_Log(-1, '+> Initial test connection to Telegram successfull.')
 			else
-				Print_to_Log(-1, '!!!> Initial test connection to Telegram failed!')
+				Print_to_Log(-1, '!> Initial test connection to Telegram failed!')
 			end
 		end
 
 		if telegram_connected and domoticz_connected then
-			Print_to_Log(-1, '+>> All connections working, dtgbot will start.')
-			Print_to_Log(-1, '> ==================================================================')
+			Print_to_Log(-1, '<< All connections working, dtgbot will start.')
 			break
 		end
 		-- Print_to_Log(-1, '!> Open http://DTGBOT-Host:8099 to define the proper connection settings.')
@@ -151,9 +149,9 @@ function _G.DtgBot_Initialise()
 	-- Retrieve id Menu white list
 end
 
--- ===========================================================================================================
+-- ==================================================================================================
 -- Main Functions to Process Received Message
--- ===========================================================================================================
+-- ==================================================================================================
 -- Step 1: Check Message content, validity and preprocess data
 function PreProcess_Received_Message(tt)
 	-- return the encountered error in stead of crashing the script
@@ -605,7 +603,7 @@ function HandleCommand(cmd, SendTo, Group, MessageId, chat_type)
 	return 'ok'
 end
 
--- ==== Functions section =====================================================================================
+-- ==== Functions section ============================================================================
 -- simulate sprintf for easy string formatting
 _G.Sprintf = function(s, ...)
 	return s:format(...)

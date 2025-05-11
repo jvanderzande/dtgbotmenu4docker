@@ -265,7 +265,7 @@ local yreturn_status, yresult =
 					Fo:close()
 				end
 
-				return
+
 			end
 
 			-- Copy Standard Config and override when newer than existing
@@ -277,7 +277,6 @@ local yreturn_status, yresult =
 			-- Load active config from JSON files
 			Print_to_Log(-1, '####################################################################################')
 			Print_to_Log(-1, 'Load DTGBOT configuration files')
-			Print_to_Log(-1, '-----------------------------------------------------------------------------------')
 			LoadConfigFiletoJson(_G.BotDataPath .. 'dtgbot__configdefault.lua', _G.BotDataPath .. 'dtgbot__configdefault.json')
 			_G.TelegramBotToken = os.getenv('TelegramBotToken') or ''
 			_G.Telegram_Url = 'https://api.telegram.org/bot' .. (os.getenv('TelegramBotToken') or '?') .. '/'
@@ -286,7 +285,6 @@ local yreturn_status, yresult =
 
 			-- ==========================================
 			-- set logfile to datapath
-			Print_to_Log(-1, '-----------------------------------------------------------------------------------')
 			Print_to_Log(-1, 'Start DTGBOT (git info:' .. (os.getenv('GIT_RELEASE') or '?') .. ')')
 			if _G.BotLogFile ~= '' then
 				Print_to_Log(-1, 'DTGBOT LogFile set to    :' .. _G.BotLogFile)
@@ -359,14 +357,12 @@ local xreturn_status, xresult =
 			local response = ''
 			local decoded_response
 			local reloadmodules = false
-			-- ===========================================================================================================
+			-- ==================================================================================================
 			-- closed loop to retrieve Telegram messages while service is running
-			-- ===========================================================================================================
-			Print_to_Log(-1, '-----------------------------------------------')
-			Print_to_Log(-1, '### Starting message loop with Telegram servers')
+			-- ==================================================================================================
+			Print_to_Log(-1, '#> Starting message loop with Telegram servers')
 			_G.Persistent.TelegramBotOffset = _G.Persistent.TelegramBotOffset or 0
 			Print_to_Log(1, 'TelegramBotOffset=' .. (_G.Persistent.TelegramBotOffset))
-			--Print_to_Log(-1, '### Start first 10 seconds longpoll to check proper functioning of DTGBOT.')
 			local longpollmaxtime = 1
 			while true do
 				-- loop till messages is received
@@ -406,12 +402,12 @@ local xreturn_status, xresult =
 					-----------------------------------------------------------------------------------------------------------
 					if status == 200 then
 						if not telegram_connected then
-							Print_to_Log(-1, '### In contact with Telegram servers. Start Longpolling ' .. _G.Telegram_Longpoll_TimeOut .. ' seconds.')
+							Print_to_Log(-1, '-> In contact with Telegram servers. Start Longpoll loop every ' .. _G.Telegram_Longpoll_TimeOut .. ' seconds.')
 							if _G.BotLogFile ~= '' then
-								Print_to_Log(-1, '====================================================================================')
+								Print_to_Log(-1, '===========================================================================')
 								Print_to_Log(-1, 'Further detailed Logging can be found in ' .. _G.BotLogFile)
-								Print_to_Log(-1, ' or open http://DTGBOT-Host:8099 to view log or update settings.')
-								Print_to_Log(-1, '====================================================================================')
+								Print_to_Log(-1, 'Open http://DTGBOT-Host:8099 to view log and update configuration settings.')
+								Print_to_Log(-1, '===========================================================================')
 							end
 							telegram_connected = true
 						end
