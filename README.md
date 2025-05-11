@@ -16,10 +16,10 @@ services:
   dtgbotmenu:
     container_name: dtgbotmenu
     restart: on-failure
-    image: dtgbotmenu:latest                                       # See build instructions in dtgbot_image.txt
+    image: dtgbotmenu:latest
     environment:
       - TZ=Europe/Amsterdam                                            # Timezone setting
-      - DomoticzURL=http://dtgbot:domoticz@domoticz_ip:8080            # your domoticz url
+      - DomoticzURL=http://dtgbot:domoticz@domoticz-host:8080          # your domoticz url
       - TelegramBotToken=121212121:Aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa  # your bottoken
     ports:
       - 8099:8099                          # External port to use on the host. default 8099
@@ -55,3 +55,6 @@ When it is running you can:
 Docker image: https://hub.docker.com/r/jvdzande/dtgbotmenu  
 Github: https://github.com/jvanderzande/dtgbotmenu4docker  
 Domoticz Forum: 
+
+In case you want to buy me a nice dram of peaty Whisky: :smile:  
+[![paypal](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://www.paypal.me/jvdzande)
