@@ -16,7 +16,7 @@ services:
       - /opt/dtgbot/data:/data             # Mapping of local folder data    to /opt/dtgbot/data
       - /opt/dtgbot/modules:/modules       # Mapping of local folder modules to /opt/dtgbot/modules
     healthcheck:  # restart container when dtgbot is hanging in the longpoll
-      test: if [[ $(($(date +%s) - $(date -r "/tmp/dtgloop.txt" +%s))) -gt 40 ]]; then echo 0; kill 1; exit 1; else echo "Ok"; fi
+      test: if [[ $(($(date +%s) - $(date -r "/tmp/dtgloop.txt" +%s))) -gt 40 ]]; then echo 0; pkill -f dtgbot__main.lua; exit 1; else echo "Ok"; fi
       interval: 10s
       start_period: 30s
       timeout: 2s

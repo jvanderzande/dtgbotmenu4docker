@@ -1,6 +1,6 @@
 # dtgbotmenu4docker
 
-DTGBOTMENU for Docker
+DTGBOTMENU Telegram Bot for Domoticz on Docker
 
 ## Installation steps
 
@@ -12,25 +12,26 @@ DTGBOTMENU for Docker
 The compose definition:
 
 ```yaml
-dtgbotmenu:
-  container_name: dtgbotmenu
-  restart: on-failure
-  image: dtgbotmenu:latest                                       # See build instructions in dtgbot_image.txt
-  environment:
-    - TZ=Europe/Amsterdam                                            # Timezone setting
-    - DomoticzURL=http://dtgbot:domoticz@domoticz_ip:8080            # your domoticz url
-    - TelegramBotToken=121212121:Aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa  # your bottoken
-  ports:
-    - "8099:8099"                        # External port to use on the host. default 8099
-  volumes:
-    - /opt/dtgbot/data:/data             # Mapping of local folder data    to /opt/dtgbot/data
-    - /opt/dtgbot/modules:/modules       # Mapping of local folder modules to /opt/dtgbot/modules
-  healthcheck:  # restart container when dtgbot is hanging in the longpoll
-    test: if [[ $(($(date +%s) - $(date -r "/tmp/dtgloop.txt" +%s))) -gt 40 ]]; then echo 0; kill 1; exit 1; else echo "Ok"; fi
-    interval: 10s
-    start_period: 30s
-    timeout: 2s
-    retries: 0
+services:
+  dtgbotmenu:
+    container_name: dtgbotmenu
+    restart: on-failure
+    image: dtgbotmenu:latest                                       # See build instructions in dtgbot_image.txt
+    environment:
+      - TZ=Europe/Amsterdam                                            # Timezone setting
+      - DomoticzURL=http://dtgbot:domoticz@domoticz_ip:8080            # your domoticz url
+      - TelegramBotToken=121212121:Aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa  # your bottoken
+    ports:
+      - 8099:8099                          # External port to use on the host. default 8099
+    volumes:
+      - /opt/dtgbot/data:/data             # Mapping of local folder data    to /opt/dtgbot/data
+      - /opt/dtgbot/modules:/modules       # Mapping of local folder modules to /opt/dtgbot/modules
+    healthcheck:  # restart container when dtgbotmenu is hanging in the longpoll
+      test: if [[ $(($(date +%s) - $(date -r "/tmp/dtgloop.txt" +%s))) -gt 40 ]]; then echo 0; pkill -f dtgbot__main.lua; exit 1; else echo "Ok"; fi
+      interval: 10s
+      start_period: 30s
+      timeout: 2s
+      retries: 0
 ```
 
 After your container is created and started, check the docker log for errors.
