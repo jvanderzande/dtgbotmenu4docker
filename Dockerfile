@@ -24,8 +24,8 @@ RUN chmod +x /dtgbotinit/*sh
 VOLUME "/modules"
 VOLUME "/data"
 
-ARG GIT_COMMIT
-ENV GIT_COMMIT=${GIT_COMMIT}
+ARG GIT_RELEASE
+ENV GIT_RELEASE=${GIT_RELEASE}
 
 WORKDIR /dtgbot
 ENTRYPOINT ["tini", "--"]

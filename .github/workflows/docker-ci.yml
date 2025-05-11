@@ -37,8 +37,6 @@ jobs:
         uses: docker/setup-buildx-action@v3
 
       - name: Build and push Docker image
-        env:
-          GIT_COMMIT: ${{ github.ref_name }}
         uses: docker/build-push-action@v6
         with:
           push: ${{ github.event_name != 'pull_request' }}
@@ -49,6 +47,8 @@ jobs:
           annotations: ${{ steps.meta.outputs.annotations }}
           provenance: true
           sbom: true
+          build-args: |
+            GIT_RELEASE=${{ github.ref_name }}
 
       - name: Upload README.md to Docker Hub
         env:

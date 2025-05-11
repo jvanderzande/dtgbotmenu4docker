@@ -567,7 +567,7 @@
                 <td><input type="input" id="DomoticzStatus" name="DomoticzStatus" size="8" value="Domoticz"/></td>
                 <td><input type="input" id="TelegramStatus" name="TelegramStatus" size="8" value="Telegram"/></td>
                 <td><button id="OpenConfigWindow" onclick="OpenConfigWindow()">Configuration Menu</button></td>
-                <td>&nbsp;&nbsp;&nbsp;&nbsp;git info:<?php echo(getenv('GIT_COMMIT')); ?></td>
+                <td>&nbsp;&nbsp;&nbsp;&nbsp;Version:<?php echo(getenv('GIT_RELEASE')); ?></td>
             </tr>
         </table>
     </div>
