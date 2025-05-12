@@ -43,8 +43,8 @@ jobs:
           platforms: linux/amd64,linux/arm/v7  # Add ARMv7 support
           tags: |
             ${{ vars.DOCKER_USERNAME }}/dtgbotmenu:${{ github.ref_name }}
-            ${{ github.event.release.prerelease == false && vars.DOCKER_USERNAME }}/dtgbotmenu:latest || ''
-            ${{ github.event.release.prerelease && vars.DOCKER_USERNAME }}/dtgbotmenu:prerelease || ''
+            ${{ github.event.release.prerelease == false && '${{ vars.DOCKER_USERNAME }}/dtgbotmenu:latest' || '' }}
+            ${{ github.event.release.prerelease && '${{ vars.DOCKER_USERNAME }}/dtgbotmenu:prerelease' || '' }}
           annotations: ${{ steps.meta.outputs.annotations }}
           provenance: true
           sbom: true
