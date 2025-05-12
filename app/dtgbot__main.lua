@@ -264,8 +264,6 @@ local yreturn_status, yresult =
 					Fo:write(tostring(JSON.encode(_G.ConfigActive, { indent = true })))
 					Fo:close()
 				end
-
-
 			end
 
 			-- Copy Standard Config and override when newer than existing
@@ -352,6 +350,7 @@ local xreturn_status, xresult =
 
 			-- Get the updates
 			local telegram_connected = false
+			local telegram_startup = true
 			-- initialise to 0 to get the first new message
 			local status = 999
 			local response = ''
@@ -402,12 +401,19 @@ local xreturn_status, xresult =
 					-----------------------------------------------------------------------------------------------------------
 					if status == 200 then
 						if not telegram_connected then
-							Print_to_Log(-1, '-> In contact with Telegram servers. Start Longpoll loop every ' .. _G.Telegram_Longpoll_TimeOut .. ' seconds.')
-							if _G.BotLogFile ~= '' then
-								Print_to_Log(-1, '===========================================================================')
-								Print_to_Log(-1, 'Further detailed Logging can be found in ' .. _G.BotLogFile)
-								Print_to_Log(-1, 'Open http://DTGBOT-Host:8099 to view log and update configuration settings.')
-								Print_to_Log(-1, '===========================================================================')
+							-- Show this logmessage when DTGBOT starts
+							if telegram_startup then
+								Print_to_Log(-1, '-> In contact with Telegram servers. Start Longpoll loop every ' .. _G.Telegram_Longpoll_TimeOut .. ' seconds..')
+								if _G.BotLogFile ~= '' then
+									Print_to_Log(-1, '===========================================================================')
+									Print_to_Log(-1, 'Further detailed Logging can be found in ' .. _G.BotLogFile)
+									Print_to_Log(-1, 'Open http://DTGBOT-Host:8099 to view log and update configuration settings.')
+									Print_to_Log(-1, '===========================================================================')
+								end
+								telegram_startup = false
+							else
+								-- Show this log message when Telegram had connection failures and connect is restored
+								Print_to_Log(-1, '-> Connection to Telegram servers restored.')
 							end
 							telegram_connected = true
 						end
@@ -421,10 +427,10 @@ local xreturn_status, xresult =
 						end
 						Print_to_Log(1, '- No bot messages, next longpoll..')
 					else
-						Print_to_Log(0, _G.Sprintf('Longpoll ended with status:%s response:%s', status, result2))
+						Print_to_Log(0, _G.Sprintf('Longpoll ended with rc:%s response:%s', status, (response or '?')))
 						-- status <> 200 ==> error?
 						if telegram_connected then
-							Print_to_Log(-1, _G.Sprintf('\n### Lost contact with Telegram servers, received Non 200 status:%s', (status or '?'), (response or '?')))
+							Print_to_Log(-1, _G.Sprintf('\n### Lost contact with Telegram servers, rc:%s response', (status or '?'), (response or '?')))
 							telegram_connected = false
 						end
 						-- pause a little on failure

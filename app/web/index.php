@@ -559,7 +559,7 @@
     <div id="MainConfig">
         <table id="CheckDTGBOTConfig">
             <tr>
-                <td>DTGMenu Main Menu</td>
+                <td>DTGBOT Main Menu</td>
                 <?php /*
                 <td colspan=2><input type="text" id="resultstatus" size="40" value="" /></td>
                 <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>

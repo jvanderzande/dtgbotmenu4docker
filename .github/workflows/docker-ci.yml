@@ -42,13 +42,14 @@ jobs:
           push: ${{ github.event_name != 'pull_request' }}
           platforms: linux/amd64,linux/arm/v7  # Add ARMv7 support
           tags: |
-            ${{ steps.meta.outputs.tags }}
-            ${{ vars.DOCKER_USERNAME }}/dtgbotmenu:latest
+            ${{ vars.DOCKER_USERNAME }}/dtgbotmenu:${{ github.ref_name }}  # Tag with the release version
+            ${{ github.event.release.prerelease == false && vars.DOCKER_USERNAME }}/dtgbotmenu:latest || ''  # Tag as 'latest' if not a pre-release
+            ${{ github.event.release.prerelease && vars.DOCKER_USERNAME }}/dtgbotmenu:prerelease || ''       # Tag as 'prerelease' if it is a pre-release
           annotations: ${{ steps.meta.outputs.annotations }}
           provenance: true
           sbom: true
           build-args: |
-            GIT_RELEASE=${{ github.ref_name }}
+            GIT_RELEASE=${{ github.ref_name }}${{ github.event.release.prerelease && '-dev' || '' }}
 
       - name: Upload README.md to Docker Hub
         env:
