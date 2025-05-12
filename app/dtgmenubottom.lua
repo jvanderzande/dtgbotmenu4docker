@@ -1,4 +1,4 @@
-_G.dtgmenubottom_version = '1.0 202505101557'
+_G.dtgmenubottom_version = '1.0 202505122058'
 --[[
 	Script to support the Bottmon Menu Keyboard option for DTGBOT
 	Developer: jvdzande

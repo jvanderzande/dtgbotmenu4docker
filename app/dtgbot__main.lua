@@ -1,4 +1,4 @@
-_G.dtgbot_version = '1.0 202505081503'
+_G.dtgbot_version = '1.0 202505122058'
 --[[
 	Main process for DTGBOT
 	Developer: jvdzande

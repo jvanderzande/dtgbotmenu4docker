@@ -1,4 +1,4 @@
-_G.dtgmenuinline_version = '1.0 202505101653'
+_G.dtgmenuinline_version = '1.0 202505122058'
 local dtgmenuinline = {}
 
 --[[

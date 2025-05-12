@@ -1,4 +1,4 @@
-_G.dtg_main_functions_version = '1.0 202505101611'
+_G.dtg_main_functions_version = '1.0 202505122058'
 _G.msgids_removed = {}
 --[[
 	Functions library for the Main process in DTGBOT

@@ -1,5 +1,5 @@
 -- These are default dtgbotmenu settings that shouldn't be changed
-_G.dtgconfigdefault_version = '1.0 202505081450'
+_G.dtgconfigdefault_version = '1.0 202505122059'
 
 BotLogLevel                     = 1    --# Loglevel 0-99
 

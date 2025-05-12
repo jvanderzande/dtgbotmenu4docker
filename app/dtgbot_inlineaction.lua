@@ -1,4 +1,4 @@
-_G.dtgbot_inlineaction_version = '1.0 202505081458'
+_G.dtgbot_inlineaction_version = '1.0 202505122058'
 
 --[[
 	Script to support the Inline Menu options for any telegram message DTGBOT
