@@ -29,7 +29,7 @@ services:
   dtgbotmenu:
     container_name: dtgbotmenu
     restart: on-failure
-    image: dtgbotmenu:latest
+    image: jvdzande/dtgbotmenu:latest
     environment:
       - TZ=Europe/Amsterdam                                            # Timezone setting
       - DomoticzURL=http://dtgbot:domoticz@domoticz-host:8080          # your domoticz url
