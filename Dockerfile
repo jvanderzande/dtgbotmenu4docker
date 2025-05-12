@@ -6,7 +6,6 @@
 FROM alpine:latest
 #
 LABEL maintainer="jvdzande"
-
 #
 # Install Apps. create directories and create Symlink lua to lua5.2
 RUN apk add --no-cache bash tzdata php lua5.2 lua-socket lua-sec curl jq tini && \
@@ -18,7 +17,7 @@ RUN apk add --no-cache bash tzdata php lua5.2 lua-socket lua-sec curl jq tini &&
 
 
 COPY ./app /dtgbot/
-COPY ./_docker/*.sh /dtgbotinit/
+COPY ./dtgbotinit/*.sh /dtgbotinit/
 RUN chmod +x /dtgbotinit/*sh
 
 VOLUME "/modules"
