@@ -1,4 +1,4 @@
-_G.dtgbot_version = '1.0 202505122058'
+_G.dtgbot_version = '1.0 202505131041'
 --[[
 	Main process for DTGBOT
 	Developer: jvdzande
@@ -426,11 +426,16 @@ local xreturn_status, xresult =
 							break
 						end
 						Print_to_Log(1, '- No bot messages, next longpoll..')
+					elseif status == 409 then
+						if telegram_connected then
+							Print_to_Log(-1, _G.Sprintf('### rc:%s Is there another Longpoll or Webhook active for this bot? response: %s', (status or '?'), (response or '?')))
+							telegram_connected = false
+						end
 					else
 						Print_to_Log(0, _G.Sprintf('Longpoll ended with rc:%s response:%s', status, (response or '?')))
 						-- status <> 200 ==> error?
 						if telegram_connected then
-							Print_to_Log(-1, _G.Sprintf('\n### Lost contact with Telegram servers, rc:%s response', (status or '?'), (response or '?')))
+							Print_to_Log(-1, _G.Sprintf('\n### Lost contact with Telegram servers, rc:%s response:%s', (status or '?'), (response or '?')))
 							telegram_connected = false
 						end
 						-- pause a little on failure
