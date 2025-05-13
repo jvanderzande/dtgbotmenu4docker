@@ -262,7 +262,7 @@
                         const scrollInfon = myCodeMirror.getScrollInfo();
                         // Restore the scroll position
                         if (gotoend) {
-                            myCodeMirror.scrollTo(0, scrollInfon.height)
+                            myCodeMirror.scrollTo(scrollInfo.left, scrollInfon.height)
                         } else {
                             myCodeMirror.scrollTo(scrollInfo.left, scrollInfo.top);
                             if (selection[0].anchor.ch != selection[0].head.ch) {
