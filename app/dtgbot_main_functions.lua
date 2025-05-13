@@ -1,4 +1,4 @@
-_G.dtg_main_functions_version = '1.0 202505131509'
+_G.dtg_main_functions_version = '1.0 202505132230'
 _G.msgids_removed = {}
 --[[
 	Functions library for the Main process in DTGBOT
@@ -106,25 +106,41 @@ function _G.DtgBot_Initialise()
 
 		if telegram_connected and domoticz_connected then
 			Print_to_Log(-1, '<< All connections working, dtgbot will start.')
+			_G.Persistent.NotFirstCheck = true
+			_G.Save_Persistent_Vars()
 			break
 		end
-		-- Print_to_Log(-1, '!> Open http://DTGBOT-Host:8099 to define the proper connection settings.')
-		-- Print_to_Log(-1, '!> Will try to connect again in 15 seconds.')
-		Print_to_Log(-1, '!> Fix your docker-compose.yml environment variable(s) and try to restart.')
-		Print_to_Log(-1, '!> environment:')
-		Print_to_Log(-1, '!>   - TZ=Europe/Amsterdam                                    # Timezone setting')
-		Print_to_Log(-1, '!>   - DomoticzURL=' .. _G['DomoticzUrl'] .. '      # your domoticz url')
-		Print_to_Log(-1, '!>   - TelegramBotToken=' .. _G['TelegramBotToken'] .. '      # your bottoken')
-		Print_to_Log(-1, '> ------------------------------------------------------------------')
-		os.exit(99)
+		-- Keep retrying when we where connected before
+		if _G.Persistent.NotFirstCheck then
+			if not domoticz_connected then
+				Print_to_Log(-1, '!> problem connecting to DomoticzURL=' .. _G['DomoticzUrl'] .. '. Is the server up?')
+			end
+			if not telegram_connected then
+				Print_to_Log(-1, '!> problem connecting to TelegramBotUrl=' .. _G['Telegram_Url'] .. '. did the BOTTOKEN change or are there connection issues?')
+			end
+			Print_to_Log(-1, 'Will try again in 15 seconds.')
+			_G.SOCKET.sleep(15)
+		else
+			-- Don't retry when container is started for the firsttime assuming the compose definition is wrong
+			Print_to_Log(-1, '> ------------------------------------------------------------------')
+			if not domoticz_connected then
+				Print_to_Log(-1, '!> problem connecting to DomoticzURL=' .. _G['DomoticzUrl'] .. '. Is it correct in the compose definitions ?')
+			end
+			if not telegram_connected then
+				Print_to_Log(-1, '!> problem connecting to Telegram with BotToken=' .. _G['Telegram_Url'] .. '. Is it the correct BOTTOKEN?')
+			end
+			Print_to_Log(-1, '!> Fix your docker-compose.yml environment variable(s) and try to restart.')
+			Print_to_Log(-1, '!> environment:')
+			Print_to_Log(-1, '!>   - TZ=Europe/Amsterdam                                    # Timezone setting')
+			Print_to_Log(-1, '!>   - DomoticzURL=' .. _G['DomoticzUrl'] .. '      # your domoticz url')
+			Print_to_Log(-1, '!>   - TelegramBotToken=' .. _G['TelegramBotToken'] .. '      # your bottoken')
+			Print_to_Log(-1, '> ------------------------------------------------------------------')
+			os.exit(99)
+		end
 	end
 
-	-- Only update Usrconfig when something wasn't connecting and needed change
-	if loopcount > 1 then
-		Print_to_Log(-1, '!!!> Initial connectivity check took ' .. loopcount .. ' loops.')
-		os.remove(_G.BotDataPath .. 'dtgbot__configuser_prev.json')
-		os.rename(_G.BotDataPath .. 'dtgbot__configuser.json', _G.BotDataPath .. 'dtgbot__configuser_prev.json')
-	end
+	-- Make backup of config at startup
+	os.execute("cp " .. _G.BotDataPath .. 'dtgbot__configuser.json ' ..  _G.BotDataPath .. 'dtgbot__configuser_prev.json')
 
 	--Set global variables _G.DomoticzRevision _G.DomoticzVersion
 	Print_to_Log(-1, 'Domoticz version :' .. _G.DomoticzVersion .. '  Revision:' .. _G.DomoticzRevision .. '  BuildDate:' .. _G.DomoticzBuildDate)
