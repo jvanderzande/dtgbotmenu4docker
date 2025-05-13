@@ -18,7 +18,7 @@ if ($clearlog == 'y') {
     echo($text);
 } else {
     $logtext = file_get_contents($file);
-    preg_match_all("|Telegram ChatID (\d*) Not in ChatIDWhiteList|U",$logtext, $out, PREG_PATTERN_ORDER);
+    preg_match_all("|Telegram ChatID ([-\d]*) Not in ChatIDWhiteList|U",$logtext, $out, PREG_PATTERN_ORDER);
     $cnt = 0;
     if (count($out) > 0) {
         $output = file_get_contents($ConfigUser);

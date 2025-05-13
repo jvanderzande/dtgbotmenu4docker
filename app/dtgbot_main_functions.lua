@@ -1,4 +1,4 @@
-_G.dtg_main_functions_version = '1.0 202505122058'
+_G.dtg_main_functions_version = '1.0 202505131509'
 _G.msgids_removed = {}
 --[[
 	Functions library for the Main process in DTGBOT
@@ -195,6 +195,13 @@ function PreProcess_Received_Message(tt)
 	local ChatID = tostring(msg.chat.id)
 	local SenderID = tostring(msg.from.id)
 	local msg_id = tostring(msg.message_id)
+
+	-- use Group id as SenderID when message is send from a group id.
+	if ChatID ~= '' and SenderID ~= ChatID then
+		Print_to_Log(2, 'Use ChatID ' .. ChatID .. ' in stead of SenderID: ' .. SenderID)
+		SenderID = ChatID
+	end
+
 	if not ID_WhiteList_Check(SenderID) then
 		Print_to_Log(2, 'id ' .. SenderID .. ' not in white list, command ignored')
 		Telegram_SendMessage(ChatID, '⚡️Id ' .. SenderID .. ' has no access⚡️', msg_id)
@@ -213,7 +220,7 @@ function PreProcess_Received_Message(tt)
 	if msg.text then -- check if message is text
 		-- check for received voicefiles
 		ReceivedText = msg.text
-		if (msg.chat.type == 'group' or msg.chat.type == 'channel') then
+		if (msg.chat.type:match('group') or msg.chat.type:match('channel')) then
 			Print_to_Log(0, _G.Sprintf('!!>> msg_id:%s SenderID:%s  ChatID %s text: %s', msg_id, SenderID, ChatID, ReceivedText))
 			ReceivedText = ReceivedText:match('([^@]*)@-') -- strip possible @group/channel name
 			Print_to_Log(0, _G.Sprintf('!!<< msg_id:%s SenderID:%s  ChatID %s text: %s', msg_id, SenderID, ChatID, ReceivedText))
