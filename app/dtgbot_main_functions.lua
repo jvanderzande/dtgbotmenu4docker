@@ -1,4 +1,4 @@
-_G.dtg_main_functions_version = '1.0 202505132230'
+_G.dtg_main_functions_version = '1.0 202505161119'
 _G.msgids_removed = {}
 --[[
 	Functions library for the Main process in DTGBOT
@@ -236,7 +236,7 @@ function PreProcess_Received_Message(tt)
 	if msg.text then -- check if message is text
 		-- check for received voicefiles
 		ReceivedText = msg.text
-		if (msg.chat.type:match('group') or msg.chat.type:match('channel')) then
+		if (msg.chat.type and msg.chat.type:match('group') or (msg.chat.type and msg.chat.type:match('channel'))) then
 			Print_to_Log(0, _G.Sprintf('!!>> msg_id:%s SenderID:%s  ChatID %s text: %s', msg_id, SenderID, ChatID, ReceivedText))
 			ReceivedText = ReceivedText:match('([^@]*)@-') -- strip possible @group/channel name
 			Print_to_Log(0, _G.Sprintf('!!<< msg_id:%s SenderID:%s  ChatID %s text: %s', msg_id, SenderID, ChatID, ReceivedText))
