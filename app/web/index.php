@@ -118,7 +118,7 @@
         Win_height = window.outerHeight
         Top_height = document.getElementById("MainConfig").scrollHeight
         Main_height = document.getElementById("dmain").scrollHeight
-        document.getElementById("dmain").style.height=Win_oheight - Top_height - 40
+        document.getElementById("dmain").style.height=Win_oheight - Top_height - 55
         // Match the size of the original textarea
         let textarea = document.getElementById('LogText');
         myCodeMirror.setSize(textarea.parentElement.offsetWidth, textarea.parentElement.offsetHeight);

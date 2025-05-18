@@ -91,10 +91,8 @@ $StartOption = isset($_POST['StartOption']) ? $_POST['StartOption'] : $StartOpti
             row.insertCell(0).innerHTML = 'MenuMessagesCleanOnExit:';
             row.cells[0].onmouseover=function() {HelpText('MenuMessagesCleanOnExit')};
             row.insertCell(1).innerHTML =  `<input type="checkbox" id="MenuMessagesCleanOnExit" onchange="ChangeConfigInput('MenuMessagesCleanOnExit','bool')" onmouseover="HelpText(this.id)" size="1" value="" />`;
-            row.insertCell(2).innerHTML =  `<b>BottomMenu</b>`;
-            row.insertCell(3).innerHTML =  `<b>InlineMenu</b>`;
-            row.cells[2].colSpan = 2;
-            row.cells[3].colSpan = 2;
+            row.insertCell(2).innerHTML =  `<b>BottomMenu</b> & <b>InlineMenu</b> settings`;
+            row.cells[2].colSpan = 4;
 
             //Row 2
             row = ctable1.insertRow();
@@ -172,23 +170,16 @@ $StartOption = isset($_POST['StartOption']) ? $_POST['StartOption'] : $StartOpti
             row.innerHTML = `
             <td>
                 <table><tr><td>
-                    <input type="submit" id="bLanguage" value="Language" onclick="UpdateTextAreaObject(\'ShowLanguage\')"" />
-                    <input type="submit" id="bStaticMenus" value="StaticMenus" onclick="UpdateTextAreaObject(\'ShowStaticMenus\')" />
-                    <input type="submit" id="bDevTypes" value="DevTypes" onclick="UpdateTextAreaObject(\'ShowDevTypes\')" />
+                    <input type="submit" id="bLanguage" value="Language" onclick="UpdateTextAreaObject(\'ShowLanguage\')" onmouseover="HelpText(\'DTGMenu_Lang\')" />
+                    <input type="submit" id="bStaticMenus" value="StaticMenus" onclick="UpdateTextAreaObject(\'ShowStaticMenus\')" onmouseover="HelpText(\'DTGMenu_Static_submenus\')"  />
+                    <input type="submit" id="bDevTypes" value="DevTypes" onclick="UpdateTextAreaObject(\'ShowDevTypes\')" onmouseover="HelpText(\'DTGBOT_type_status\')" />
                     </td>
-                    <td><div id="ConfigTextArea">Menu Language Definition</div></td>
+                    <td><div id="ConfigTextArea"></div></td>
                     <td><div id="ConfigTextAreaUpdate"> </div></td>
                 </tr>
                 </table>
             </td>
             `;
-            // row = ctable2.insertRow();
-            // row.innerHTML = `<td><table><tr>
-            //     <td><div id="ConfigTextArea">Menu Language Definition</div></td>
-            //     <td><div id="ConfigTextAreaUpdate"> </div></td>
-            //     </tr></table></td>
-            // `;
-
             row = ctable2.insertRow();
             row.innerHTML = '<td onmouseover="HelpText(\'DTGMenu_Lang\')"><textarea id="DTGMenu_Lang"                       style="width:600; height:400; min-height:100; display:block;"></textarea></td>';
             row = ctable2.insertRow();
@@ -294,9 +285,9 @@ FullMenu = true -- this determines whether to show all levels or skip the Level2
                             CurrDTGBotConfig[sourceobj] = a_newcontent
                         }
                         Config_Action("update", {[sourceobj]: CurrDTGBotConfig[sourceobj]})
-                        let now = new Date();
-                        let currentTime = now.toLocaleTimeString({ hour: '2-digit', minute: '2-digit', second: '2-digit' });
-                        document.getElementById("ConfigTextAreaUpdate").innerHTML = ` <b>=>${currentTime} Updated user config</b>`;
+                        //let now = new Date();
+                        //let currentTime = now.toLocaleTimeString({ hour: '2-digit', minute: '2-digit', second: '2-digit' });
+                        document.getElementById("ConfigTextAreaUpdate").innerHTML = `<small>=>Updated user config</small>`;
                         // Flash screen to notify of the update
                         cm.getWrapperElement().style.backgroundColor = "#e1e9fe";
                         setTimeout(function() {
@@ -563,18 +554,11 @@ FullMenu = true -- this determines whether to show all levels or skip the Level2
     };
 
     function UpdateTextAreaObject(option='', setfocus=true) {
-        document.getElementById("ConfigTextArea").style.backgroundColor = "#e1e9fe";
-        document.getElementById("ConfigTextArea").style.fontWeight = "bolder";
         if (option=='ShowLanguage') {
             LastJSONEdit = option;
-            document.getElementById("ConfigTextArea").innerHTML = "Menu Language Definition";
-            document.getElementById("ConfigTextArea").style.display = "inline-block";
-            // document.getElementById("DTGMenu_Lang").style.display = "block";
-            // document.getElementById("DTGMenu_Static_submenus").style.display = "none";
-            // document.getElementById("DTGBOT_type_status").style.display = "none";
-            document.getElementById("bLanguage").style.display = "inline-block";
-            document.getElementById("bStaticMenus").style.display = "inline-block";
-            document.getElementById("bDevTypes").style.display = "inline-block";
+            document.getElementById("bLanguage").style.backgroundColor = "#FFDF00";
+            document.getElementById("bStaticMenus").style.backgroundColor = "";
+            document.getElementById("bDevTypes").style.backgroundColor = "";
             // show and hide the appropriate codemirror objects belonging to the textareas
             DTGMenu_Lang_editor.getWrapperElement().style.display = "block";
             DTGMenu_Static_submenus_editor.getWrapperElement().style.display = "none";
@@ -584,13 +568,10 @@ FullMenu = true -- this determines whether to show all levels or skip the Level2
         }
         if(option=='ShowStaticMenus') {
             LastJSONEdit = option;
-            document.getElementById("ConfigTextArea").innerHTML = "Static Menus";
-            // document.getElementById("DTGMenu_Lang").style.display = "none";
-            // document.getElementById("DTGMenu_Static_submenus").style.display = "block";
-            // document.getElementById("DTGBOT_type_status").style.display = "none";
-            document.getElementById("bLanguage").style.display = "inline-block";
-            document.getElementById("bStaticMenus").style.display = "inline-block";
-            document.getElementById("bDevTypes").style.display = "inline-block";
+            document.getElementById("bLanguage").style.backgroundColor = "";
+            document.getElementById("bStaticMenus").style.backgroundColor = "#FFDF00";
+            document.getElementById("bDevTypes").style.backgroundColor = "";
+            // show and hide the appropriate codemirror objects belonging to the textareas
             DTGMenu_Lang_editor.getWrapperElement().style.display = "none";
             DTGMenu_Static_submenus_editor.getWrapperElement().style.display = "block";
             DTGBOT_type_status_editor.getWrapperElement().style.display = "none";
@@ -599,13 +580,10 @@ FullMenu = true -- this determines whether to show all levels or skip the Level2
         }
         if(option=='ShowDevTypes') {
             LastJSONEdit = option;
-            document.getElementById("ConfigTextArea").innerHTML = "Device type definitions";
-            // document.getElementById("DTGMenu_Lang").style.display = "none";
-            // document.getElementById("DTGMenu_Static_submenus").style.display = "none";
-            // document.getElementById("DTGBOT_type_status").style.display = "block";
-            document.getElementById("bLanguage").style.display = "inline-block";
-            document.getElementById("bStaticMenus").style.display = "inline-block";
-            document.getElementById("bDevTypes").style.display = "inline-block";
+            document.getElementById("bLanguage").style.backgroundColor = "";
+            document.getElementById("bStaticMenus").style.backgroundColor = "";
+            document.getElementById("bDevTypes").style.backgroundColor = "#FFDF00";
+            // show and hide the appropriate codemirror objects belonging to the textareas
             DTGMenu_Lang_editor.getWrapperElement().style.display = "none";
             DTGMenu_Static_submenus_editor.getWrapperElement().style.display = "none";
             DTGBOT_type_status_editor.getWrapperElement().style.display = "block";
@@ -753,14 +731,21 @@ FullMenu = true -- this determines whether to show all levels or skip the Level2
 
     // Define the helptext for the inputfields
     let helptextHtml = [];
+    let JSONBackGround = `
+\nBackgroundColor:
+ - White => No Change
+ - Red   => JSON Error - Not Saved
+ - Green => Valid JSON - Changes are immediately Saved to the UserConfig
+`
     helptextHtml["MenuMessagesCleanOnExit"] = "Select this to cleanup all messages after the Menu is closed"
     helptextHtml["MenuMessagesMaxShown"] = "Define the max shown messages for the Menu.\nThe rest will be removed as new ones are added."
     helptextHtml["OtherMessagesMaxShown"] = "Define the max messages generated by the other tasks of DTGBOT.\nThe rest will be removed as new ones are added."
     helptextHtml["MenuLanguage"] = "Select one of the avaiable menu language to use."
     helptextHtml["BotLogLevel"] = "Define the Log Level for DTGBOT process.\nOff/Min/More/Debug"
-    helptextHtml["DTGMenu_Lang"] = "Update the default DTGBOT menu language definition."
+    helptextHtml["DTGMenu_Lang"] = "Update the default DTGBOT menu language definition." + JSONBackGround
     helptextHtml["DTGMenu_Static_submenus"] =
-`Update the default DTGBOT static menu definition:
+`Update the default DTGBOT static menu definition.
+
 -> define the mainmenu menuitems.
   ["xxx"] =  Specify the name of the Submenu. EG: Lights; Screens; Misc
      whitelist    ="" (whitelisted ChatIDs or blank to show everybody)
@@ -782,15 +767,14 @@ FullMenu = true -- this determines whether to show all levels or skip the Level2
             "prompt":true
          }
       }
-   }
-`
-    helptextHtml["DTGBOT_type_status"] = "Update the default DTGBOT menu device type definition."
-    helptextHtml["SubMenuwidth"] = "Max horizontal buttons in mainmenu"
-    helptextHtml["DevMenuwidth"] = "Max horizontal Devices/Options"
-    helptextHtml["ActMenuwidth"] = "Max options for a device shown"
-    helptextHtml["ButtonTextwidth"] = "Max textlength of a button"
-    helptextHtml["FullMenu"] = "Show Stacked menus for inline or just active menu level."
-    helptextHtml["AlwaysResizeMenu"] = "Always Resize the BottomMenu."
+   }` + JSONBackGround
+    helptextHtml["DTGBOT_type_status"] = "Update the default DTGBOT menu device type definition." + JSONBackGround
+    helptextHtml["SubMenuwidth"] = "Max horizontal buttons in mainmenu (Both Menus)"
+    helptextHtml["DevMenuwidth"] = "Max horizontal Devices/Options (Both Menus)"
+    helptextHtml["ActMenuwidth"] = "Max options for a device shown (Both Menus)"
+    helptextHtml["ButtonTextwidth"] = "Max textlength on a button (inlineMenu)"
+    helptextHtml["FullMenu"] = "Show Stacked menus for inline or just active menu level.  (inlineMenu)"
+    helptextHtml["AlwaysResizeMenu"] = "Always Resize the BottomMenu. (BottomMenu)"
     helptextHtml["restoredefault"] = "Restore the settings of this block back to the default config."
     helptextHtml["bEdit"] = "Open the dtgbot__configuser.json file and edit it directly."
 
