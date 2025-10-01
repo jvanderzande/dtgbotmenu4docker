@@ -1,4 +1,4 @@
-_G.dtg_main_functions_version = '1.0 202505161119'
+_G.dtg_main_functions_version = '1.0 202510012210'
 _G.msgids_removed = {}
 --[[
 	Functions library for the Main process in DTGBOT
@@ -78,6 +78,7 @@ function _G.DtgBot_Initialise()
 	local loopcount = 0
 	Print_to_Log(-1, '>> Start Initial connectivity check for Domoticz and Telegram ==')
 
+	_G.Persistent.NotFirstCheck = _G.Persistent.NotFirstCheck or 0
 	-- remove indicator file and only create when both domotcz and Telegram successfully connected.
 	while not telegram_connected or not domoticz_connected do
 		loopcount = loopcount + 1
@@ -106,12 +107,12 @@ function _G.DtgBot_Initialise()
 
 		if telegram_connected and domoticz_connected then
 			Print_to_Log(-1, '<< All connections working, dtgbot will start.')
-			_G.Persistent.NotFirstCheck = true
+			_G.Persistent.NotFirstCheck = 1
 			_G.Save_Persistent_Vars()
 			break
 		end
 		-- Keep retrying when we where connected before
-		if _G.Persistent.NotFirstCheck then
+		if _G.Persistent.NotFirstCheck == 1 then
 			if not domoticz_connected then
 				Print_to_Log(-1, '!> problem connecting to DomoticzURL=' .. _G['DomoticzUrl'] .. '. Is the server up?')
 			end
@@ -409,10 +410,10 @@ function HandleCommand(cmd, SendTo, Group, MessageId, chat_type)
 			end
 		end
 		-- Update Command when previous was the real command and this msg is the answer to the prompt
-		if _G.Persistent.prompt and _G.Persistent.promptcommandline ~= '' then
+		if _G.Persistent.prompt==1 and _G.Persistent.promptcommandline ~= '' then
 			parsed_command[3] = parsed_command[2]
 			parsed_command[2] = _G.Persistent.promptcommandline
-			_G.Persistent.prompt = false
+			_G.Persistent.prompt = 0
 			_G.Persistent.promptcommandline = ''
 			Print_to_Log(2, 'Changed command to:', parsed_command[2], parsed_command[3])
 		end

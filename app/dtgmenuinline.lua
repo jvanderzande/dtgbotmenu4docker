@@ -1,4 +1,4 @@
-_G.dtgmenuinline_version = '1.0 202505122058'
+_G.dtgmenuinline_version = '1.0 202510012145'
 local dtgmenuinline = {}
 
 --[[
@@ -349,12 +349,12 @@ function dtgmenuinline.handler(menu_cli, SendTo)
 
   -- return when not a menu item and hand it back to be processed as regular command
   if not menucmd then
-    if (_G.Persistent.inlinemenu and _G.Persistent.inlinemenu.prompt) then
-      _G.Persistent.prompt = true
+    if (_G.Persistent.inlinemenu and _G.Persistent.inlinemenu.prompt == 1) then
+      _G.Persistent.prompt = 1
       _G.Persistent.promptcommandline = _G.Persistent.inlinemenu.command
       commandlinex = _G.Persistent.inlinemenu.command .. ' ' .. menu_cli[2]
       _G.Persistent.inlinemenu.command = ''
-      _G.Persistent.inlinemenu.prompt = false
+      _G.Persistent.inlinemenu.prompt = 0
       Print_to_Log(0, '==<1 found regular lua command with prompted device. -> hand back to dtgbot to run', commandlinex)
     else
       Print_to_Log(0, '==<1 found regular lua command. -> hand back to dtgbot to run', commandlinex, parsed_command[2])
@@ -461,7 +461,7 @@ function dtgmenuinline.handler(menu_cli, SendTo)
   if Type == 'command' then
     if (param3 == '*prompt*') then
       _G.Persistent.inlinemenu = {}
-      _G.Persistent.inlinemenu.prompt = true
+      _G.Persistent.inlinemenu.prompt = 1
       _G.Persistent.inlinemenu.command = param2
       replymarkup = '{"force_reply":true}'
       status = 0

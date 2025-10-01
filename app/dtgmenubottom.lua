@@ -1,4 +1,4 @@
-_G.dtgmenubottom_version = '1.0 202505122058'
+_G.dtgmenubottom_version = '1.0 202510012201'
 --[[
 	Script to support the Bottmon Menu Keyboard option for DTGBOT
 	Developer: jvdzande
@@ -499,7 +499,7 @@ function dtgmenubottom.handler(menu_cli, SendTo, commandline)
         -- no prompt defined so simply return to dtgbot with status 0 so it will be performed and reset the keyboard to just MENU
         bLastCommand['device'] = commandline
         bLastCommand['prompt'] = 1
-        _G.Persistent.prompt = true
+        _G.Persistent.prompt = 1
         replymarkup = '{"force_reply":true}'
         bLastCommand['replymarkup'] = replymarkup
         status = true

@@ -1,4 +1,4 @@
-_G.dtgbot_version = '1.0 202505131041'
+_G.dtgbot_version = '1.0 202510012211'
 --[[
 	Main process for DTGBOT
 	Developer: jvdzande
@@ -299,7 +299,8 @@ local yreturn_status, yresult =
 
 			-- get any persistent variable values
 			_G.Persistent = _G.LoadTableFromJSONFile(_G.BotDataPath .. 'dtgbot_persistent.json') or {}
-			if (_G.Persistent.UseDTGMenu) then
+			_G.Persistent.UseDTGMenu = _G.Persistent.UseDTGMenu or 0
+			if (_G.Persistent.UseDTGMenu == 1) then
 				Print_to_Log(-1, 'Persistent table loaded')
 			else
 				Print_to_Log(-1, 'Persistent table will be initialised.')
