@@ -1,4 +1,12 @@
 <?php
+//Check for Security PIN defined in environment variable SECURITY_PIN
+require_once 'security.php';
+
+// Check if PIN verification is needed
+if (!requirePIN()) {
+    showPINPrompt();
+}
+
 // configuration
 $url = '/';
 $DTGBotDataPath = getenv('DTGBotDataPath');

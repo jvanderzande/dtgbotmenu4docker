@@ -1,4 +1,4 @@
-_G.dtg_main_functions_version = '1.0 202510012210'
+_G.dtg_main_functions_version = '1.0 202510012230'
 _G.msgids_removed = {}
 --[[
 	Functions library for the Main process in DTGBOT
@@ -79,6 +79,7 @@ function _G.DtgBot_Initialise()
 	Print_to_Log(-1, '>> Start Initial connectivity check for Domoticz and Telegram ==')
 
 	_G.Persistent.NotFirstCheck = _G.Persistent.NotFirstCheck or 0
+
 	-- remove indicator file and only create when both domotcz and Telegram successfully connected.
 	while not telegram_connected or not domoticz_connected do
 		loopcount = loopcount + 1
@@ -89,6 +90,7 @@ function _G.DtgBot_Initialise()
 		--
 		if not _G['DomoticzUrl'] or _G['DomoticzUrl'] == ''
 			or not _G['TelegramBotToken'] or _G['TelegramBotToken'] == '' then
+			_G.Persistent.NotFirstCheck = 0
 			Print_to_Log(-1, '!> Domoticz URL and/or TelegramBotToken not set yet.')
 		else
 			domoticz_connected = Domoticz_Version(-1)
