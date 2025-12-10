@@ -1,4 +1,4 @@
-_G.dtgmenubottom_version = '1.0 202510012201'
+_G.dtgmenubottom_version = '1.0 202512102224'
 --[[
 	Script to support the Bottmon Menu Keyboard option for DTGBOT
 	Developer: jvdzande
@@ -147,7 +147,7 @@ function dtgmenubottom.makereplymenu(SendTo, Level, submenu, devicename)
             l3menu = l3menu or DTGMenu_Lang[_G.MenuLanguage].devices_options[Type]
             if not l3menu then
               Print_to_Log(2, '  !!! No default DTGMenu_Lang[_G.MenuLanguage].devices_options for SwitchType:', SwitchType, Type)
-              l3menu = 'Aan,Uit'
+              l3menu = DTGMenu_Lang[_G.MenuLanguage].devices_options['On/Off']
             end
           end
           Print_to_Log(2, '   -< ' .. tostring(SwitchType) .. ' using replymarkup:', l3menu)
