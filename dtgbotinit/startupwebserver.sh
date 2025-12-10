@@ -10,6 +10,16 @@ echo "log_errors = On" >> php.ini
 echo "error_log = /data/logs/dtgbot_webserver_errors.log" >> php.ini
 echo "display_errors = Off" >> php.ini
 
+# Add session configuration required for security pin
+echo "extension=session" >> php.ini
+echo "session.save_path = \"/tmp\"" >> php.ini
+echo "session.use_cookies = 1" >> php.ini
+echo "session.use_only_cookies = 1" >> php.ini
+echo "session.auto_start = 0" >> php.ini
+
+# Clean old session files
+rm /tmp/sess_*
+
 while :
 do
 	rdate=`date`

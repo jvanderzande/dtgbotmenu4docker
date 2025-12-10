@@ -1,5 +1,16 @@
 <?php
 // main webpage for DTGBOT
+//
+//Check for Security PIN defined in environment variable SECURITY_PIN
+require_once 'security.php';
+if (isset($_GET['logout']) && $_GET['logout'] == '1') {
+    logoutPIN();
+}
+
+// Check if PIN verification is needed
+if (!requirePIN()) {
+    showPINPrompt();
+}
 ?>
 <html>
 
@@ -559,6 +570,11 @@
     <div id="MainConfig">
         <table id="CheckDTGBOTConfig">
             <tr>
+<?php  if ($_SESSION['pin_required']) { ?>
+                <td>
+                    <button id="LogoutButton" onclick="window.location.href='?logout=1'">Logout</button>
+                </td>
+<?php  } ?>
                 <td>DTGBOT Main Menu</td>
                 <?php /*
                 <td colspan=2><input type="text" id="resultstatus" size="40" value="" /></td>
