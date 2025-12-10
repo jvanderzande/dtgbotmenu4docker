@@ -38,7 +38,8 @@ function showPINPrompt() {
     <html>
     <head>
         <meta charset="utf-8">
-        <title>Security PIN Required</title>
+        <link rel="icon" href="/DTGBOT.svg" type="image/svg+xml">
+        <title>dtgbotmenu4docker Security</title>
         <style>
             body {
                 background-color: #eaeaea;
@@ -88,7 +89,8 @@ function showPINPrompt() {
     </head>
     <body>
         <div class="pin-container">
-            <h2>Security PIN Required</h2>
+            <h2>dtgbotmenu4docker</h2>
+            <h3>Security PIN Required</h3>
             <form method="POST">
                 <input type="password" name="pin_input" placeholder="Enter PIN" autofocus required>
                 <br>
