@@ -34,6 +34,7 @@ services:
       - TZ=Europe/Amsterdam                                            # Timezone setting
       - DomoticzURL=http://dtgbot:domoticz@domoticz-host:8080          # your domoticz url
       - TelegramBotToken=121212121:Aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa  # your bottoken
+    # - SECURITY_PIN=111                                               # Optional Security Pin for WebFrontend
     ports:
       - 8099:8099                          # External port to use on the host. default 8099
     volumes:
