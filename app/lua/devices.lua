@@ -14,6 +14,7 @@ function DevicesScenes(DeviceType, qualifier, state)
 	else
 		response = 'All available ' .. DeviceType
 	end
+
 	decoded_response = Domo_Device_List(DeviceType)
 	result = decoded_response['result']
 	_G.StoredType = DeviceType
@@ -25,24 +26,26 @@ function DevicesScenes(DeviceType, qualifier, state)
 				DeviceName = record['Name']
 				-- Don't bother to store Unknown devices
 				if DeviceName ~= 'Unknown' then
-					if qualifier and qualifier == string.lower(string.sub(DeviceName, 1, quallength)) then
-						ItemNumber = ItemNumber + 1
-						if state ~= '' then
-							-- get dev status
-							local _, _, _, _, dSwitchType, _, switchstatus, LevelNames, LevelInt = Domo_Devinfo_From_Name(0, DeviceName)
-              switchstatus = switchstatus or ''
-              if switchstatus ~= '' then
-								if dSwitchType == 'Selector' then
-									switchstatus = ' - ' .. getSelectorStatusLabel(LevelNames, LevelInt)
-								else
-									--~ 							Print_to_Log(0,switchstatus)
-									switchstatus = tostring(switchstatus)
-									switchstatus = switchstatus:gsub('Set Level: ', '')
-									switchstatus = '->' .. switchstatus
+					if qualifier then
+						if qualifier == string.lower(string.sub(DeviceName, 1, quallength)) then
+							ItemNumber = ItemNumber + 1
+							if state ~= '' then
+								-- get dev status
+								local _, _, _, _, dSwitchType, _, switchstatus, LevelNames, LevelInt = Domo_Devinfo_From_Name(0, DeviceName)
+								switchstatus = switchstatus or ''
+								if switchstatus ~= '' then
+									if dSwitchType == 'Selector' then
+										switchstatus = ' - ' .. getSelectorStatusLabel(LevelNames, LevelInt)
+									else
+										--~ 							Print_to_Log(0,switchstatus)
+										switchstatus = tostring(switchstatus)
+										switchstatus = switchstatus:gsub('Set Level: ', '')
+										switchstatus = '->' .. switchstatus
+									end
 								end
 							end
+							table.insert(_G.StoredList, DeviceName .. switchstatus)
 						end
-						table.insert(_G.StoredList, DeviceName .. switchstatus)
 					else
 						ItemNumber = ItemNumber + 1
 						table.insert(_G.StoredList, DeviceName)
