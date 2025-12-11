@@ -17,13 +17,13 @@ jobs:
         uses: docker/metadata-action@v5
         with:
           images: ${{ vars.DOCKER_USERNAME }}/dtgbotmenu
-          tags: ${{ github.ref_name }}
+          tags: ${{ github.event.release.tag_name }}
           labels: |
             org.opencontainers.image.title=dtgbotmenu
             org.opencontainers.image.description=Telegram Bot Menu for Domoticz
             org.opencontainers.image.url=https://github.com/${{ github.repository }}
             org.opencontainers.image.source=https://github.com/${{ github.repository }}
-            org.opencontainers.image.version=${{ github.ref_name }}
+            org.opencontainers.image.version=${{ github.event.release.tag_name }}
             org.opencontainers.image.revision=${{ github.sha }}
             org.opencontainers.image.licenses=MIT
 
@@ -42,13 +42,13 @@ jobs:
           push: ${{ github.event_name != 'pull_request' }}
           platforms: linux/amd64,linux/arm/v7  # Add ARMv7 support
           tags: |
-            ${{ vars.DOCKER_USERNAME }}/dtgbotmenu:${{ github.ref_name }}
+            ${{ vars.DOCKER_USERNAME }}/dtgbotmenu:${{ github.event.release.tag_name }}
             ${{ vars.DOCKER_USERNAME }}/dtgbotmenu:${{ github.event.release.prerelease && 'prerelease' || 'latest' }}
           annotations: ${{ steps.meta.outputs.annotations }}
           provenance: true
           sbom: true
           build-args: |
-            GIT_RELEASE=${{ github.ref_name }}${{ github.event.release.prerelease && '-dev' || '' }}
+            GIT_RELEASE=${{ github.event.release.tag_name }}${{ github.event.release.prerelease && '-dev' || '' }}
 
       - name: Upload README.md to Docker Hub
         env:
