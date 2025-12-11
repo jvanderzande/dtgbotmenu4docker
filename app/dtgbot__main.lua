@@ -1,4 +1,4 @@
-_G.dtgbot_version = '1.0 202510012211'
+_G.dtgbot_version = '1.0 202512111604'
 --[[
 	Main process for DTGBOT
 	Developer: jvdzande
@@ -157,7 +157,11 @@ local yreturn_status, yresult =
 						_G[k] = merged[k]
 					else
 						-- take the value from table2 when there else keep table1
-						merged[k] = table2[k] or v
+						if table2[k] ~= nil then
+							merged[k] = table2[k]
+						else
+							merged[k] = v
+						end
 						_G[k] = merged[k]
 					end
 				end
