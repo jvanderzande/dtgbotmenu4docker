@@ -1,16 +1,31 @@
 local devices_module = {};
 --JSON = assert(loadfile "_G.JSON.lua")() -- one-time load of the routines
 
-function DevicesScenes(DeviceType, qualifier, state)
-	state = state or ''
-	local switchstatus = ''
-	local quallength = 0
+function DevicesScenes(parsed_cli)
+	local getDevStatus = false
+	local DeviceType = parsed_cli[2]
+	local qualifier = nil
+	local devcontains = false
+	for index, value in ipairs(parsed_cli) do
+		if value:sub(1,1) == '-' then
+			if value:sub(1,2) == '-s' or value:sub(1,2) == '-st' then
+				getDevStatus = true
+			elseif value:sub(1,2) == '-c' then
+				devcontains = true
+			end
+		else
+			qualifier = value
+		end
+	end
 	local response = ''
 	local ItemNumber, result, decoded_response
-	if qualifier ~= nil then
-		response = 'All ' .. DeviceType .. ' starting with ' .. qualifier
+	if qualifier then
+		if devcontains then
+			response = 'All ' .. DeviceType .. ' containing ' .. qualifier
+		else
+			response = 'All ' .. DeviceType .. ' starting with ' .. qualifier
+		end
 		qualifier = string.lower(qualifier)
-		quallength = string.len(qualifier)
 	else
 		response = 'All available ' .. DeviceType
 	end
@@ -27,10 +42,11 @@ function DevicesScenes(DeviceType, qualifier, state)
 				-- Don't bother to store Unknown devices
 				if DeviceName ~= 'Unknown' then
 					if qualifier then
-						if qualifier == string.lower(string.sub(DeviceName, 1, quallength)) then
+						if (devcontains and DeviceName:lower():find(qualifier))
+						or ((not devcontains) and qualifier == string.lower(string.sub(DeviceName, 1, qualifier:len()))) then
 							ItemNumber = ItemNumber + 1
 							local oswst = ''
-							if state ~= '' then
+							if getDevStatus then
 								-- get dev status
 								local _, _, _, _, dSwitchType, _, switchstatus, LevelNames, LevelInt = Domo_Devinfo_From_Name(0, DeviceName)
 								switchstatus = switchstatus or ''
@@ -68,13 +84,13 @@ end
 
 function devices_module.handler(parsed_cli)
 	local response = ''
-	response = DevicesScenes(string.lower(parsed_cli[2]), parsed_cli[3], parsed_cli[4])
+	response = DevicesScenes(parsed_cli)
 	return nil, response;
 end
 
 local devices_commands = {
-	['devices'] = { handler = devices_module.handler, description = 'devices - devices - return list of all devices\ndevices - devices qualifier - all that start with qualifier i.e.\n devices St - all devices that start with St' },
-	['scenes'] = { handler = devices_module.handler, description = 'scenes - scenes - return list of all scenes\ndevices - devices qualifier - all that start with qualifier i.e.\n scenes down - all scenes that start with down' }
+	['devices'] = { handler = devices_module.handler, description = '>devices - return list of all devices\n>devices Room - all devices that start with Room\n Options\n  -c = contains instead of start with\n  -s = Also show current status' },
+	['scenes'] = { handler = devices_module.handler, description = '>scenes - scenes - return list of all scenes\n>scenes down - all scenes that start with down' }
 }
 
 function devices_module.get_commands()
