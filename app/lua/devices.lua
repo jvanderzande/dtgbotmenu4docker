@@ -2,15 +2,16 @@ local devices_module = {};
 --JSON = assert(loadfile "_G.JSON.lua")() -- one-time load of the routines
 
 function DevicesScenes(parsed_cli)
-	local getDevStatus = false
 	local DeviceType = parsed_cli[2]
 	local qualifier = nil
+	local getDevStatus = false
 	local devcontains = false
 	for index, value in ipairs(parsed_cli) do
 		if value:sub(1,1) == '-' then
-			if value:sub(1,2) == '-s' or value:sub(1,2) == '-st' then
+			if value:find('s', 2) then
 				getDevStatus = true
-			elseif value:sub(1,2) == '-c' then
+			end
+			if value:find('c', 2) then
 				devcontains = true
 			end
 		else
@@ -42,7 +43,7 @@ function DevicesScenes(parsed_cli)
 				-- Don't bother to store Unknown devices
 				if DeviceName ~= 'Unknown' then
 					if qualifier then
-						if (devcontains and DeviceName:lower():find(qualifier))
+						if (devcontains and DeviceName:lower():find(qualifier, 1, true))
 						or ((not devcontains) and qualifier == string.lower(string.sub(DeviceName, 1, qualifier:len()))) then
 							ItemNumber = ItemNumber + 1
 							local oswst = ''
