@@ -29,22 +29,23 @@ function DevicesScenes(DeviceType, qualifier, state)
 					if qualifier then
 						if qualifier == string.lower(string.sub(DeviceName, 1, quallength)) then
 							ItemNumber = ItemNumber + 1
+							local oswst = ''
 							if state ~= '' then
 								-- get dev status
 								local _, _, _, _, dSwitchType, _, switchstatus, LevelNames, LevelInt = Domo_Devinfo_From_Name(0, DeviceName)
 								switchstatus = switchstatus or ''
 								if switchstatus ~= '' then
 									if dSwitchType == 'Selector' then
-										switchstatus = ' - ' .. getSelectorStatusLabel(LevelNames, LevelInt)
+										oswst = ' - ' .. getSelectorStatusLabel(LevelNames, LevelInt)
 									else
 										--~ 							Print_to_Log(0,switchstatus)
-										switchstatus = tostring(switchstatus)
-										switchstatus = switchstatus:gsub('Set Level: ', '')
-										switchstatus = '->' .. switchstatus
+										oswst = tostring(switchstatus)
+										oswst = switchstatus:gsub('Set Level: ', '')
+										oswst = '->' .. oswst
 									end
 								end
 							end
-							table.insert(_G.StoredList, DeviceName .. switchstatus)
+							table.insert(_G.StoredList, DeviceName .. oswst)
 						end
 					else
 						ItemNumber = ItemNumber + 1
