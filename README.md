@@ -111,7 +111,7 @@ When dtgbotmenu is up and running it is ready to be configured.
 
 Docker image: https://hub.docker.com/r/jvdzande/dtgbotmenu  
 Github: https://github.com/jvanderzande/dtgbotmenu4docker  
-Domoticz Forum: (will be added after a new topic is opened)
+Domoticz Forum: https://forum.domoticz.com/viewtopic.php?t=44188
 
 In case you want to buy me a nice dram of peaty Whisky: :smile:  
 [![paypal](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://www.paypal.me/jvdzande)
