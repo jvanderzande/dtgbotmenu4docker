@@ -1,5 +1,12 @@
 <?php
 // configuration
+
+// Check if PIN verification is needed
+require_once 'security.php';
+if (!requirePIN()) {
+    die("Login Required");
+}
+
 $url = '/';
 $DTGBotDataPath = getenv('DTGBotDataPath');
 if ($DTGBotDataPath == '') {

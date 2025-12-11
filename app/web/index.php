@@ -179,6 +179,9 @@ if (!requirePIN()) {
             async: true,
             timeout: 2000,
             success: function(data) {
+                if (data == "Login Required") {
+                    window.location.replace('/');
+                }
                 let textarea = document.getElementById('LogText');
                 let result = [];
                 let prevMessage = "";
