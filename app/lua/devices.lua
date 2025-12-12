@@ -2,7 +2,7 @@ local devices_module = {};
 --JSON = assert(loadfile "_G.JSON.lua")() -- one-time load of the routines
 
 function DevicesScenes(parsed_cli)
-	local DeviceType = parsed_cli[2]
+	local DeviceType = parsed_cli[2]:lower()
 	local qualifier = nil
 	local getDevStatus = false
 	local devcontains = false
