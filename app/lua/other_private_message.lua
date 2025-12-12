@@ -26,13 +26,13 @@ function other_private_message_module.handler(parsed_cli)
     if (decoded_response.location) then
       local didx = 499 -- Domoticz text device IDX
       Print_to_Log(1, "Step3: This is a location message. ")
-      Print_to_Log(1, "Location longitude:", decoded_response.location.longitude)
       Print_to_Log(1, "Location latitude:", decoded_response.location.latitude)
+      Print_to_Log(1, "Location longitude:", decoded_response.location.longitude)
       -- set domoticz text device to location
       if decoded_response and decoded_response.edit_date then
         lastupdate = tostring(os.date("%X", decoded_response.edit_date) or '')
       end
-      local dtxt = decoded_response.location.longitude .. ":" .. decoded_response.location.latitude
+      local dtxt = decoded_response.location.latitude .. ":" .. decoded_response.location.longitude
       local dUrl = "type=command&param=udevice&idx=" .. didx .. "&nvalue=0&svalue=" .. dtxt
       Print_to_Log(3, "JSON request <" .. dUrl .. ">")
       local decoded_response, status = PerformDomoticzRequest(dUrl, 2)
