@@ -1,0 +1,41 @@
+name: Cleanup Docker Hub Untagged Images
+
+on:
+  workflow_dispatch:  # Allows manual execution
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clean up untagged images on Docker Hub
+        env:
+          DOCKERHUB_USERNAME: ${{ vars.DOCKER_USERNAME }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+        run: |
+          echo "Starting cleanup of untagged images…"
+
+          TOKEN=$(curl -s -H "Content-Type: application/json" \
+            -X POST \
+            -d "{\"username\": \"${DOCKERHUB_USERNAME}\", \"password\": \"${DOCKER_PASSWORD}\"}" \
+            https://hub.docker.com/v2/users/login/ | jq -r .token)
+
+          URL="https://hub.docker.com/v2/repositories/${DOCKERHUB_USERNAME}/dtgbotmenu/tags/?page_size=100"
+
+          while [ -n "$URL" ] && [ "$URL" != "null" ]; do
+            echo "Fetching: $URL"
+
+            RESPONSE=$(curl -s -H "Authorization: JWT ${TOKEN}" "$URL")
+
+            # Delete untagged digests
+            echo "$RESPONSE" | jq -r '.results[] | select(.name == null) | .digest' | while read digest; do
+              if [ -n "$digest" ]; then
+                echo "Deleting untagged digest: $digest"
+                curl -s -X DELETE -H "Authorization: JWT ${TOKEN}" \
+                  "https://hub.docker.com/v2/repositories/${DOCKERHUB_USERNAME}/dtgbotmenu/digests/${digest}/"
+              fi
+            done
+
+            URL=$(echo "$RESPONSE" | jq -r '.next')
+          done
+
+          echo "Cleanup complete."
