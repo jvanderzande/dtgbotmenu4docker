@@ -39,7 +39,7 @@ end
 
 function battery_module.handler(parsed_cli)
 	local t, jresponse, status, decoded_response, result, idx, record
-	local response
+	local response = ''
 	if string.lower(parsed_cli[2]) == 'battery' then
 		DeviceName = Form_Device_name(parsed_cli)
 		if DeviceName == nil then
