@@ -1,4 +1,4 @@
-_G.dtgbot_version = '1.0 202512111604'
+_G.dtgbot_version = '1.0 202512141528'
 --[[
 	Main process for DTGBOT
 	Developer: jvdzande
@@ -15,6 +15,11 @@ print('########## Docker ############')
 _G.ScriptDirectory = '/dtgbot/'
 _G.BotLuaScriptPath = '/modules/lua/'
 _G.BotBashScriptPath = '/modules/bash/'
+_G.git_release = os.getenv('GIT_RELEASE')
+if _G.git_release == '' then
+	_G.git_release = 'unknown'
+end
+_G.BotSaveScriptPath = '/modules/save/' .. _G.git_release .. '/'
 _G.BotDataPath = '/data/'
 -- log info
 _G.BotLogFile = _G.BotDataPath .. 'logs/dtgbot.log' --
@@ -287,7 +292,7 @@ local yreturn_status, yresult =
 
 			-- ==========================================
 			-- set logfile to datapath
-			Print_to_Log(-1, 'Start DTGBOT (git release:' .. (os.getenv('GIT_RELEASE') or '?') .. ')')
+			Print_to_Log(-1, 'Start DTGBOT (git release:' .. _G.git_release .. ')')
 			if _G.BotLogFile ~= '' then
 				Print_to_Log(-1, 'DTGBOT LogFile set to    :' .. _G.BotLogFile)
 			end
@@ -312,6 +317,13 @@ local yreturn_status, yresult =
 			-- Install/Update standard scripts in case of updates
 			os.execute('mkdir -p ' .. _G.BotBashScriptPath .. ' >> ' .. _G.BotLogFile)
 			os.execute('mkdir -p ' .. _G.BotLuaScriptPath .. ' >> ' .. _G.BotLogFile)
+			-- Backup directory
+			os.execute('mkdir -p ' .. _G.BotSaveScriptPath.. 'bash/' .. ' >> ' .. _G.BotLogFile)
+			os.execute('mkdir -p ' .. _G.BotSaveScriptPath.. 'lua/' .. ' >> ' .. _G.BotLogFile)
+			-- save current version first
+			os.execute('cp -u -p ' .. _G.BotBashScriptPath .. '* ' .. _G.BotSaveScriptPath.. 'bash/ >> ' .. _G.BotLogFile .. ' 2>&1')
+			os.execute('cp -u -p ' .. _G.BotBashScriptPath .. '* ' .. _G.BotSaveScriptPath.. 'lua/ >> ' .. _G.BotLogFile .. ' 2>&1')
+			-- copy updates
 			os.execute('cp -u -p ' .. _G.ScriptDirectory .. 'bash/* ' .. _G.BotBashScriptPath .. ' >> ' .. _G.BotLogFile .. ' 2>&1')
 			os.execute('cp -u -p ' .. _G.ScriptDirectory .. 'lua/* ' .. _G.BotLuaScriptPath .. ' >> ' .. _G.BotLogFile .. ' 2>&1')
 			--------------------------------------------------------------------------------
