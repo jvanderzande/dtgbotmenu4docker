@@ -1,4 +1,4 @@
-_G.dtg_main_functions_version = '1.0 202510012230'
+_G.dtg_main_functions_version = '1.0 202512141426'
 _G.msgids_removed = {}
 --[[
 	Functions library for the Main process in DTGBOT
@@ -557,10 +557,13 @@ function HandleCommand(cmd, SendTo, Group, MessageId, chat_type)
 						Print_to_Log(0, 'cmd:bash ' .. bashpath .. line .. ' ' .. SendTo .. ' ' .. params)
 						handled_by = string.lower(parsed_command[2])
 						-- add following variables to the env
-						local SetEnv = '' ..
-							' DomoticzUrl=' .. _G.DomoticzUrl ..
-							' Telegram_Url=' .. _G.Telegram_Url ..
-							''
+						local SetEnv = '\n' ..
+								'export DomoticzUrl=' .. _G.DomoticzUrl .. '\n' ..
+								'export Telegram_Url=' .. _G.Telegram_Url .. '\n' ..
+								'export DomoticzRevision=' .. _G.DomoticzRevision .. '\n' ..
+								'export DomoticzVersion=' .. _G.DomoticzVersion:match("[%d%.]*") .. '\n' ..
+								'export DomoticzBuildDate=' .. _G.DomoticzBuildDate .. '\n'
+						Print_to_Log(2, _G.Sprintf('->Set env %s', SetEnv))
 						local handle = io.popen(SetEnv .. ' bash ' .. bashpath .. line .. ' ' .. SendTo .. ' ' .. params)
 						if handle then
 							text = handle:read('*a')
@@ -573,7 +576,7 @@ function HandleCommand(cmd, SendTo, Group, MessageId, chat_type)
 						text = text:sub(-400)
 						-- remove ending CR LF
 						text = text:gsub('[\n\r]$', '')
-						Print_to_Log(0, 'cleaned returned text=' .. text)
+						Print_to_Log(2, 'cleaned returned text=' .. text)
 						-- default to "done"when no text is returned as it use to be.
 						if text == '' then
 							text = 'done.'
