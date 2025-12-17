@@ -1,4 +1,4 @@
-_G.dtg_main_functions_version = '1.0 202512141426'
+_G.dtg_main_functions_version = '1.0 202512162038'
 _G.msgids_removed = {}
 --[[
 	Functions library for the Main process in DTGBOT
@@ -383,7 +383,7 @@ function HandleCommand(cmd, SendTo, Group, MessageId, chat_type)
 	end
 	---------------------------------------------------------------------------
 	-- Start with DTGMENU when it isn't an "inlineaction" command.
-	--   inlineaction commnds need to be processed directly by inlineaction.lua
+	--   inlineaction commands need to be processed directly by inlineaction.lua
 	---------------------------------------------------------------------------
 	local savereplymarkup = ''
 	if (parsed_command[2] ~= 'inlineaction')
@@ -1170,4 +1170,9 @@ function Telegram_Remove_Message(SendTo, MessageId)
 	else
 		Print_to_Log(2, _G.Sprintf('   !!! Message %s not deleted! %s', MessageId, (decoded_response.description or response)))
 	end
+end
+
+function StrTrim(s)
+	s = s or ''
+  return s:match "^%s*(.-)%s*$"
 end

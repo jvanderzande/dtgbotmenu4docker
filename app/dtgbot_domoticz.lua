@@ -1,4 +1,4 @@
-_G.dtg_domoticz_version = '1.0 202505122058'
+_G.dtg_domoticz_version = '1.0 202512162033'
 --[[
 	A set of support functions used for DTGBOT
 	Developer: Jos v.d.Zande
@@ -423,8 +423,10 @@ end
 
 function Domo_sSwitchName(DeviceName, DeviceType, SwitchType, idx, state)
 	local dUrl, response, status, decoded_response
+	state = StrTrim(state)
 	if idx == nil then
 		response = 'Devicename ' .. DeviceName .. ' is nil.'
+		return response, 990
 	else
 		local subgroup = 'light'
 		if DeviceType == 'scenes' then
@@ -440,6 +442,7 @@ function Domo_sSwitchName(DeviceName, DeviceType, SwitchType, idx, state)
 			dUrl = 'type=command&param=switch' .. subgroup .. '&idx=' .. idx .. '&switchcmd=Set%20Level&level=' .. string.sub(state, 11)
 		else
 			response = 'state must be on, off or set level!'
+			return response, 991
 		end
 		Print_to_Log(9, '   -- PerformDomoticzRequest:', dUrl)
 		decoded_response, status = PerformDomoticzRequest(dUrl, 2)
@@ -450,7 +453,6 @@ function Domo_sSwitchName(DeviceName, DeviceType, SwitchType, idx, state)
 		end
 	end
 	Print_to_Log(0, '   -< performed action on Device ' .. DeviceName .. ' (' .. idx .. ')=>' .. (state or '?') .. '  response:' .. response)
-
 	return response, status
 end
 

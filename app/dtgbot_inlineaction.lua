@@ -1,4 +1,4 @@
-_G.dtgbot_inlineaction_version = '1.0 202505122058'
+_G.dtgbot_inlineaction_version = '1.0 202512171340'
 
 --[[
 	Script to support the Inline Menu options for any telegram message DTGBOT
@@ -11,33 +11,41 @@ _G.dtgbot_inlineaction_version = '1.0 202505122058'
 --This script handles inline-keyboard responses when replies are send to dtgbot
 	on messages coded like the below examples (send by any process):
 		Basic example on/off switch:
-		https://api.telegram.org/bot123456890:aaa...xxx/sendMessage?chat_id=123456789&text=actions for DeviceName
-					&reply_markup={"inline_keyboard":[[{"text":"On","callback_data":"inlineaction DeviceName on"},
-																						{"text":"Off","callback_data":"inlineaction DeviceName off"},
-																						{"text":"remove","callback_data":"inlineaction DeviceName remove"}
-																						] ] }
+		https://api.telegram.org/bot123456890:aaa...xxx/sendMessage?
+			chat_id=123456789
+			&text=actions for DeviceName
+			&reply_markup={"inline_keyboard":[[
+				{"text":"On","callback_data":"inlineaction DeviceName on"},
+				{"text":"Off","callback_data":"inlineaction DeviceName off"},
+				{"text":"exit","callback_data":"inlineaction DeviceName exit"},
+			] ] }
 		Example of a dimmer
-		https://api.telegram.org/bot123456890:aaa...xxx/sendMessage?chat_id=123456789&text=actions for DeviceName
-					&reply_markup={"inline_keyboard":[[{"text":"Aan","callback_data":"inlineaction DeviceName on"},
-																						{"text":"25%","callback_data":"inlineaction DeviceName set level 25"},
-																						{"text":"50%","callback_data":"inlineaction DeviceName set level 50"},
-																						{"text":"75%","callback_data":"inlineaction DeviceName set level 75"},
-																						{"text":"Uit","callback_data":"inlineaction DeviceName off"},
-																						{"text":"exit","callback_data":"inlineaction DeviceName exit"},
-																						{"text":"remove","callback_data":"inlineaction DeviceName remove"}
-																						] ] }
-	Callback_Data format: inlineaction DomoticzDeviceName Action
-	Action can be On/Off/Set level xx
-	Action exit   -> remove the inline menu with closing message
-	Action remove -> remove the whole message with keyboard.
-	Add /silent at the end to perform the action without any response text
+		https://api.telegram.org/bot123456890:aaa...xxx/sendMessage?
+			chat_id=123456789
+			&text=actions for DeviceName
+			&reply_markup={"inline_keyboard":[ [
+				{"text":"Aan",   "callback_data":"inlineaction DeviceName on"},
+				{"text":"25%",   "callback_data":"inlineaction DeviceName set level 25"},
+				{"text":"50%",   "callback_data":"inlineaction DeviceName set level 50"},
+				{"text":"75%",   "callback_data":"inlineaction DeviceName set level 75"},
+				{"text":"Uit",   "callback_data":"inlineaction DeviceName off"},
+				{"text":"exit",  "callback_data":"inlineaction exit"},
+				{"text":"remove","callback_data":"inlineaction remove"}
+				] ] }
+
+	Callback_Data format: inlineaction DeviceName Action
+		DeviceName -> Domoticz DeviceName to perform the action for. Optional
+		Action On/Off/Set level xx -> Action to perform on DeviceName
+		Action exit   -> remove the inline menu with closing message
+		Action remove -> remove the whole message with keyboard.
+		Add /silent at the end to perform the action without any response text
 ]]
 local inlineaction = {}
 --JSON = assert(loadfile "_G.JSON.lua")() -- one-time load of the routines
 
 -- process the received command by DTGBOT
 local function perform_action(parsed_cli, SendTo, MessageId, org_replymarkup)
-	Print_to_Log(2, 'Inlineaction start: ')
+	Print_to_Log(2, 'Inlineaction start: ' .. tostring(#parsed_cli))
 	local DeviceName = ''
 	local action = ''
 	local status, response, replymarkup
@@ -51,12 +59,16 @@ local function perform_action(parsed_cli, SendTo, MessageId, org_replymarkup)
 			-- the "inlineaction" command
 		elseif x == 3 then
 			DeviceName = param
-		elseif x == 4 then
-			action = param
+			-- assume param 3 is the actioon when that is the last parameter
+			if #parsed_cli == 3 then
+				action = param
+			end
 		else
 			action = action .. ' ' .. param
 		end
 	end
+	-- strip leading/trailing spaces
+	action = StrTrim(action)
 
 	-- check for the /silent option
 	local silent = false
@@ -68,9 +80,9 @@ local function perform_action(parsed_cli, SendTo, MessageId, org_replymarkup)
 		action = taction
 	end
 
-	-- remove keyboard when exit is defined as action
+	-- remove keyboard when exit is defined as action and
 	if action == 'exit' then
-		response = DeviceName .. ' done.' --
+		response = 'exit ' .. DeviceName
 		replymarkup = 'remove'
 		if silent then
 			response = ''
