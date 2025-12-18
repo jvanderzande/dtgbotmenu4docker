@@ -1,4 +1,4 @@
-_G.dtgbot_inlineaction_version = '1.0 202512171340'
+_G.dtgbot_inlineaction_version = '1.0 202512181604'
 
 --[[
 	Script to support the Inline Menu options for any telegram message DTGBOT
@@ -19,26 +19,39 @@ _G.dtgbot_inlineaction_version = '1.0 202512171340'
 				{"text":"Off","callback_data":"inlineaction DeviceName off"},
 				{"text":"exit","callback_data":"inlineaction DeviceName exit"},
 			] ] }
-		Example of a dimmer
+		Example for a dimmer
 		https://api.telegram.org/bot123456890:aaa...xxx/sendMessage?
 			chat_id=123456789
 			&text=actions for DeviceName
 			&reply_markup={"inline_keyboard":[ [
-				{"text":"Aan",   "callback_data":"inlineaction DeviceName on"},
-				{"text":"25%",   "callback_data":"inlineaction DeviceName set level 25"},
-				{"text":"50%",   "callback_data":"inlineaction DeviceName set level 50"},
-				{"text":"75%",   "callback_data":"inlineaction DeviceName set level 75"},
-				{"text":"Uit",   "callback_data":"inlineaction DeviceName off"},
-				{"text":"exit",  "callback_data":"inlineaction exit"},
-				{"text":"remove","callback_data":"inlineaction remove"}
+				{"text":"Aan",   "callback_data":"ia DeviceName on"},
+				{"text":"25%",   "callback_data":"ia DeviceName set level 25"},
+				{"text":"50%",   "callback_data":"ia DeviceName set level 50"},
+				{"text":"75%",   "callback_data":"ia DeviceName set level 75"},
+				{"text":"Uit",   "callback_data":"ia DeviceName off"},
+				{"text":"exit",  "callback_data":"ia exit"},
+				{"text":"remove","callback_data":"ia remove"}
 				] ] }
 
-	Callback_Data format: inlineaction DeviceName Action
+		Example for a Setpoint with event trigger:
+		https://api.telegram.org/bot123456890:aaa...xxx/sendMessage?
+			chat_id=123456789
+			&text=actions for DeviceName
+			&reply_markup={"inline_keyboard":[ [
+				{"text":"18.0c", "callback_data":"ia DeviceName3 udevice 18 -t"},
+				{"text":"18.5c", "callback_data":"ia DeviceName3 udevice 18.5 -t"},
+				{"text":"20.0c", "callback_data":"ia DeviceName3 udevice 20 -t"},
+				{"text":"exit",  "callback_data":"ia exit"},
+				] ] }
+
+	Callback_Data format: inlineaction DeviceName Action [-st]
 		DeviceName -> Domoticz DeviceName to perform the action for. Optional
 		Action On/Off/Set level xx -> Action to perform on DeviceName
+		Action udevice "x[;y;z]"   -> Action to perform an udevice on DeviceName
+				-t parameter to trigger event when udevice is used. default is no event triggered
 		Action exit   -> remove the inline menu with closing message
 		Action remove -> remove the whole message with keyboard.
-		Add /silent at the end to perform the action without any response text
+		-s parameter to perform the action Silent without any response text
 ]]
 local inlineaction = {}
 --JSON = assert(loadfile "_G.JSON.lua")() -- one-time load of the routines
@@ -50,35 +63,44 @@ local function perform_action(parsed_cli, SendTo, MessageId, org_replymarkup)
 	local action = ''
 	local status, response, replymarkup
 	local switchtype
-	-- loop through the parsed commandline information
+	local udevtrigger = false
+	local silent = false
+
 	for x, param in pairs(parsed_cli) do
 		Print_to_Log(2, 'command parameter ' .. x .. '=' .. param)
 		if x == 1 then
 			-- "stuff" Used for other purposes
 		elseif x == 2 then
-			-- the "inlineaction" command
-		elseif x == 3 then
-			DeviceName = param
-			-- assume param 3 is the actioon when that is the last parameter
-			if #parsed_cli == 3 then
-				action = param
-			end
+			-- the "inlineaction"/"ia" command
 		else
-			action = action .. ' ' .. param
+			if param:sub(1, 1) == '-' then
+				if param:find('t', 2) then
+					udevtrigger = true
+				end
+				if param:find('s', 2) then
+					silent = true
+				end
+			elseif param == '/silent' then
+				-- backwards compatibility previvous versions
+				silent = true
+			elseif DeviceName == '' then
+				-- assume this param is the action when that is the last parameter
+				if #parsed_cli == x then
+					action = param
+				else
+					DeviceName = param
+				end
+			else
+				if action == '' then
+					action = param
+				else
+					action = action .. ' ' .. param
+				end
+			end
 		end
 	end
 	-- strip leading/trailing spaces
 	action = StrTrim(action)
-
-	-- check for the /silent option
-	local silent = false
-	local saction = action .. ' '
-	local taction = saction:gsub('([ ]-/silent[ ]+)', '')
-	taction = taction:gsub('([ ])$', '')
-	if action ~= taction then
-		silent = true
-		action = taction
-	end
 
 	-- remove keyboard when exit is defined as action and
 	if action == 'exit' then
@@ -103,18 +125,9 @@ local function perform_action(parsed_cli, SendTo, MessageId, org_replymarkup)
 	Print_to_Log(3, 'MessageId:' .. MessageId)
 	Print_to_Log(3, 'DeviceName:' .. DeviceName)
 	Print_to_Log(3, 'action:' .. action)
-	-- Check if a percentage is specified and make it Set Level xx
-	if action:find('[%d%%]+') and not action:find('[%a]+') then
-		-- calculate the proper level to set the dimmer
-		action = string.format('Set Level %.0f', action:gsub('%%', '')) -- remove % & decimals
-		Print_to_Log(3, ' found number -> NEW action:' .. action)
-	end
 
-	if silent then
-		Print_to_Log(3, '/silent active')
-	end
 	-- Check if DeviceName is a known domoticz device
-	switchtype = 'light'
+	switchtype = 'device'
 	DeviceID = Domo_Idx_From_Name(DeviceName, 'devices')
 	if DeviceID == nil then
 		-- Its not a device so check if a scene
@@ -122,14 +135,34 @@ local function perform_action(parsed_cli, SendTo, MessageId, org_replymarkup)
 		switchtype = 'scenes'
 	end
 	-- process the action when either a device or a scene
-	if DeviceID ~= nil then
-		-- Now switch the device or scene when it exists
-		response = Domo_sSwitchName(DeviceName, switchtype, switchtype, DeviceID, action)
-	else
+	if DeviceID == nil then
 		response = '' .. DeviceName .. ' is unknown.'
+	else
+		if switchtype == 'device' and action:sub(1, 7):lower() == 'udevice' then
+			local sValue = action:gsub('udevice ', '')
+			local dUrl = 'type=command&param=udevice&idx=' .. DeviceID .. '&nvalue=0&svalue=' .. sValue .. '&parsetrigger=' .. tostring(udevtrigger)
+			Print_to_Log(3, ' update url:' .. dUrl)
+			local decoded_response, status = PerformDomoticzRequest(dUrl, 2)
+			if decoded_response then
+				response = 'Udevice: Set ' .. DeviceName .. ' to ' .. sValue .. ' trigger=' .. tostring(udevtrigger)
+			else
+				response = 'Udevice: ' .. (status or '??') .. ' Failed to Set ' .. DeviceName .. ' to ' .. sValue
+			end
+		else
+			if action:sub(1, 9):lower() == 'set level' then
+				local sValue = action:sub(11)
+				Print_to_Log(3, '1. updated Set Level:' .. sValue .. '=' .. sValue:gsub('[%s%%]', ''))
+				-- Set the proper level to set the dimmer
+				action = string.format('Set Level %.0f', sValue:gsub('[%s%%]', '')) -- remove % & decimals
+				Print_to_Log(3, ' updated Set Level:' .. action)
+			end
+			-- Now switch the device or scene
+			response = Domo_sSwitchName(DeviceName, switchtype, switchtype, DeviceID, action)
+		end
 	end
 	-- remove info when /silent is provided as parameter > 3
 	if silent then
+		Print_to_Log(3, '/silent active')
 		response = ''
 		replymarkup = ''
 	end
@@ -142,7 +175,8 @@ function inlineaction.handler(parsed_cli, SendTo, MessageId)
 end
 
 local inlineaction_commands = {
-	['inlineaction'] = { handler = inlineaction.handler, description = 'inline action - handle actions from inline-keyboard' }
+	['inlineaction'] = { handler = inlineaction.handler, description = 'inline action - handle actions from inline-keyboard' },
+	['ia'] = { handler = inlineaction.handler, description = 'inline action - handle actions from inline-keyboard' }
 }
 
 function inlineaction.get_commands()

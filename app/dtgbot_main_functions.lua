@@ -1,4 +1,4 @@
-_G.dtg_main_functions_version = '1.0 202512162038'
+_G.dtg_main_functions_version = '1.0 202512181606'
 _G.msgids_removed = {}
 --[[
 	Functions library for the Main process in DTGBOT
@@ -385,6 +385,11 @@ function HandleCommand(cmd, SendTo, Group, MessageId, chat_type)
 	-- Start with DTGMENU when it isn't an "inlineaction" command.
 	--   inlineaction commands need to be processed directly by inlineaction.lua
 	---------------------------------------------------------------------------
+	--   ia is an abbbreviation for inlineaction just to make it a bit shorter
+	if parsed_command[2] == 'ia' then
+		parsed_command[2] = 'inlineaction'
+	end
+
 	local savereplymarkup = ''
 	if (parsed_command[2] ~= 'inlineaction')
 		and (_G.Persistent.UseDTGMenu == 1
