@@ -11,7 +11,6 @@ echo "error_log = /data/logs/dtgbot_webserver_errors.log" >> php.ini
 echo "display_errors = Off" >> php.ini
 
 # Add session configuration required for security pin
-echo "extension=session" >> php.ini
 echo "session.save_path = \"/tmp\"" >> php.ini
 echo "session.use_cookies = 1" >> php.ini
 echo "session.use_only_cookies = 1" >> php.ini

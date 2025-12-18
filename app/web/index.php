@@ -11,6 +11,41 @@ if (isset($_GET['logout']) && $_GET['logout'] == '1') {
 if (!requirePIN()) {
     showPINPrompt();
 }
+// Check for Last version on hub.docker.com
+// When index.php is loaded, check for hub.docker.com updates one times every hour max or when the sesssion is started
+require_once 'checkimageupdate.php';
+$runningVersion = getenv('GIT_RELEASE');
+
+if (strtolower(getenv('CHECK4UPDATES')) == 'y') {
+    if (!isset($_SESSION['lastchecktime'])) {
+        $_SESSION['lastchecktime'] = 0;
+    }
+    if ((time() - intval($_SESSION['lastchecktime'])) < 3600) {
+        $latestVersion = $_SESSION['lastcheckversion'];
+    } else {
+        $dockerversion = '';
+        try {
+            $dockerversion = getLatestDockerHubTag();
+        } catch (Exception $e) {
+            $dockerversion = 'error getting version:' . $e->getMessage();
+        }
+        $latestVersion = $dockerversion['vtag'] ?? 'N/A';
+    }
+
+    if ($latestVersion == 'N/A' ) {
+        $runningVersion .= ' (unable to retrieve last version from hub.docker.com)';
+    } else {
+        if ($runningVersion != $latestVersion) {
+            $runningVersion .= ' (Update available: ' . $latestVersion . ')';
+        } //else {
+            // $runningVersion .= ' (last version)';
+        //}
+        $_SESSION['lastcheckversion'] = $latestVersion;
+        $_SESSION['lastchecktime'] = time();
+    }
+}
+// end check for Last version on hub.docker.com
+//
 ?>
 <html>
 
@@ -54,6 +89,7 @@ if (!requirePIN()) {
     ConfigwindowOpen = false;
     hpopup = null;
     ConfigwindowOpen = false;
+    DTGWebOK = true;
     DomoOK = false;
     TelegramOK = false;
     DTGBOTDockerOK = true;
@@ -182,6 +218,9 @@ if (!requirePIN()) {
                 if (data == "Login Required") {
                     window.location.replace('/');
                 }
+                document.getElementById("dtgweb").style.backgroundColor = "#c1f5c8";
+                document.getElementById("dtgweb").title = "DTGBOTMENU webserver running.";
+                DTGWebOK = true;
                 let textarea = document.getElementById('LogText');
                 let result = [];
                 let prevMessage = "";
@@ -295,6 +334,11 @@ if (!requirePIN()) {
                 resizedivs();
             },
             error: function(xhr, textStatus, errorThrown) {
+                document.getElementById("dtgweb").style.backgroundColor = "#fab2ac";
+                document.getElementById("TelegramStatus").style.backgroundColor = "#fbf8a1ff";
+                document.getElementById("DomoticzStatus").style.backgroundColor = "#fbf8a1ff";
+                document.getElementById("dtgweb").title = "Can't connect to DTGBOTMENU internal webserver.";
+                DTGWebOK = false;
                 if (xhr.responseText === undefined) {
                     UpdateStatusField("get_log:" + xhr.statusText)
                 } else {
@@ -353,7 +397,7 @@ if (!requirePIN()) {
                 },
                 error: function(xhr, textStatus, errorThrown) {
                     error = "??";
-                    alert(errorThrown);
+                    // alert(errorThrown);
                 },
             });
         } else if (iaction == 'get') {
@@ -378,7 +422,7 @@ if (!requirePIN()) {
                 error: function(xhr, textStatus, errorThrown) {
                     if (DTGBOTDockerOK) {
                         error = "Retrieving the log failed, is DTGBOT Docker running?";
-                        alert(error);
+                        // alert(error);
                         DTGBOTDockerOK = false
                     }
                     return '{}';
@@ -391,6 +435,9 @@ if (!requirePIN()) {
     ////
     // Use the Docker container to check the Domo URL as this could be an internal IP Address!
     function ChkDomo(task = 0) {
+        if (!DTGWebOK) {
+            return
+        }
         var lurl = CurrDTGBotConfig.DomoticzUrl + "/json.htm?type=command&param=getversion"
         // check when Telegram is OK to disable the top part
         var savestatus = $.ajax({
@@ -415,6 +462,9 @@ if (!requirePIN()) {
                 }
             },
             error: function(xhr, textStatus, errorThrown) {
+                if (!DTGWebOK) {
+                    return
+                }
                 document.getElementById("DomoticzStatus").style.backgroundColor = "#fab2ac";
                 if (xhr.responseText === undefined) {
                     UpdateStatusField("Domoticz:" + xhr.statusText)
@@ -578,7 +628,7 @@ if (!requirePIN()) {
                     <button id="LogoutButton" onclick="window.location.href='?logout=1'">Logout</button>
                 </td>
 <?php  } ?>
-                <td>DTGBOT Main Menu</td>
+                <td><div id="dtgweb">DTGBOT Main Menu</div></td>
                 <?php /*
                 <td colspan=2><input type="text" id="resultstatus" size="40" value="" /></td>
                 <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
@@ -586,7 +636,7 @@ if (!requirePIN()) {
                 <td><input type="input" id="DomoticzStatus" name="DomoticzStatus" size="8" value="Domoticz"/></td>
                 <td><input type="input" id="TelegramStatus" name="TelegramStatus" size="8" value="Telegram"/></td>
                 <td><button id="OpenConfigWindow" onclick="OpenConfigWindow()">Configuration Menu</button></td>
-                <td>&nbsp;&nbsp;&nbsp;&nbsp;Version:<?php echo(getenv('GIT_RELEASE')); ?></td>
+                <td>&nbsp;&nbsp;&nbsp;&nbsp;Version:<?php echo($runningVersion); ?></td>
             </tr>
         </table>
     </div>

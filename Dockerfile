@@ -10,7 +10,7 @@ FROM alpine:3.21
 LABEL maintainer="jvdzande"
 #
 # Install Apps. create directories and create Symlink lua to lua5.2
-RUN apk add --no-cache bash tzdata php php-session lua5.2 lua-socket lua-sec curl jq tini && \
+RUN apk add --no-cache bash tzdata php php-session php-curl lua5.2 lua-socket lua-sec curl jq tini && \
 	ln -s /usr/bin/lua5.2 /usr/bin/lua && \
 	mkdir -p /dtgbotinit && \
 	mkdir -p /dtgbot && \

@@ -35,6 +35,7 @@ services:
       - DomoticzURL=http://dtgbot:domoticz@domoticz-host:8080          # your domoticz url
       - TelegramBotToken=121212121:Aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa  # your bottoken
     # - SECURITY_PIN=111                                               # Optional Security Pin for WebFrontend
+    # - CHECK4UPDATES=y                                                # Optional Check for updates on hub.docker.com when opening index.php
     ports:
       - 8099:8099                          # External port to use on the host. default 8099
     volumes:
