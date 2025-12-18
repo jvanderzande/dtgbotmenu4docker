@@ -16,9 +16,8 @@ echo "session.use_cookies = 1" >> php.ini
 echo "session.use_only_cookies = 1" >> php.ini
 echo "session.auto_start = 0" >> php.ini
 
-# Clean old session files
-rm /tmp/sess_*
-
+# Clean old session files older than 5 days. pin is required again when enabled.
+find /tmp/sess_* -type f -mtime +5 -delete
 while :
 do
 	rdate=`date`
