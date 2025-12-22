@@ -1,4 +1,4 @@
-_G.dtgbot_inlineaction_version = '1.0 202512181604'
+_G.dtgbot_inlineaction_version = '1.0 202512181633'
 
 --[[
 	Script to support the Inline Menu options for any telegram message DTGBOT
@@ -10,16 +10,18 @@ _G.dtgbot_inlineaction_version = '1.0 202512181604'
 -----------------------------------------------------------------------
 --This script handles inline-keyboard responses when replies are send to dtgbot
 	on messages coded like the below examples (send by any process):
-		Basic example on/off switch:
+
+	Basic example on/off switch:
 		https://api.telegram.org/bot123456890:aaa...xxx/sendMessage?
 			chat_id=123456789
 			&text=actions for DeviceName
 			&reply_markup={"inline_keyboard":[[
-				{"text":"On","callback_data":"inlineaction DeviceName on"},
-				{"text":"Off","callback_data":"inlineaction DeviceName off"},
-				{"text":"exit","callback_data":"inlineaction DeviceName exit"},
+				{"text":"On","callback_data":"ia DeviceName on"},
+				{"text":"Off","callback_data":"ia DeviceName off"},
+				{"text":"exit","callback_data":"ia DeviceName exit"},
 			] ] }
-		Example for a dimmer
+
+	Example for a dimmer
 		https://api.telegram.org/bot123456890:aaa...xxx/sendMessage?
 			chat_id=123456789
 			&text=actions for DeviceName
@@ -33,14 +35,14 @@ _G.dtgbot_inlineaction_version = '1.0 202512181604'
 				{"text":"remove","callback_data":"ia remove"}
 				] ] }
 
-		Example for a Setpoint with event trigger:
+	Example for a Setpoint with event trigger:
 		https://api.telegram.org/bot123456890:aaa...xxx/sendMessage?
 			chat_id=123456789
 			&text=actions for DeviceName
 			&reply_markup={"inline_keyboard":[ [
 				{"text":"18.0c", "callback_data":"ia DeviceName3 udevice 18 -t"},
 				{"text":"18.5c", "callback_data":"ia DeviceName3 udevice 18.5 -t"},
-				{"text":"20.0c", "callback_data":"ia DeviceName3 udevice 20 -t"},
+				{"text":"19.0c", "callback_data":"ia DeviceName3 udevice 19 -t"},
 				{"text":"exit",  "callback_data":"ia exit"},
 				] ] }
 

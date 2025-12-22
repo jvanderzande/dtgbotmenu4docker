@@ -1,4 +1,4 @@
-_G.dtg_domoticz_version = '1.0 202512162033'
+_G.dtg_domoticz_version = '1.0 202512221118'
 --[[
 	A set of support functions used for DTGBOT
 	Developer: Jos v.d.Zande
@@ -469,6 +469,8 @@ end
 
 function Domoticz_Version(loglevel)
 	_G.DomoticzBuildDate = ''
+	_G.DomoticzVersion = ''
+	_G.DomoticzRevision = 0
 	loglevel = loglevel or 1
 	local dUrl = 'type=command&param=getversion'
 	local decoded_response, status, jresponse = PerformDomoticzRequest(dUrl, 2, loglevel)
@@ -478,6 +480,14 @@ function Domoticz_Version(loglevel)
 		_G.DomoticzVersion = (decoded_response['version'] or 0)
 		-- build_time: "2023-06-18 14:39:26" convert to number 20230618 to allow for comparing
 		_G.DomoticzBuildDate = (decoded_response['build_time'] or '')
+		-- somehow revision isn't always returned by domoticz, so using the build number for that
+		-- "version" : "2025.2 (build 16993)"
+		if _G.DomoticzRevision == 0 and _G.DomoticzVersion ~= '' then
+			Print_to_Log(0, '*>> Domoticz DomoticzVersionRevision missing, using Version build info instead')
+			Print_to_Log(0, '*>> Domoticz DomoticzVersion  :' .. _G.DomoticzVersion)
+			_G.DomoticzRevision = _G.DomoticzVersion:match('%(build.(%d+)%)') or '??'
+			Print_to_Log(0, '*>> Domoticz DomoticzRevision :' .. _G.DomoticzRevision)
+		end
 	end
 	if (_G.DomoticzBuildDate == '') then
 		Print_to_Log(loglevel, 'Domoticz getversion failed')
@@ -490,6 +500,9 @@ function Domoticz_Version(loglevel)
 		Print_to_Log(0, '*** Domoticz DomoticzRevision :' .. _G.DomoticzRevision)
 		Print_to_Log(0, '*** Domoticz DomoticzVersion  :' .. _G.DomoticzVersion)
 		Print_to_Log(0, '*** Domoticz DomoticzBuildDate:' .. _G.DomoticzBuildDate)
+		if status ~= 200 then
+			Print_to_Log(0, '*** Domoticz rc <> 200:' .. tostring(status))
+		end
 	end
 	return (status == 200 and _G.DomoticzRevision ~= 0)
 end
