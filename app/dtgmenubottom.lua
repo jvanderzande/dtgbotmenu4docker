@@ -1,4 +1,4 @@
-_G.dtgmenubottom_version = '1.0 202512221818'
+_G.dtgmenubottom_version = '1.0 202512221932'
 --[[
 	Script to support the Bottmon Menu Keyboard option for DTGBOT
 	Developer: jvdzande
@@ -553,7 +553,12 @@ function dtgmenubottom.handler(menu_cli, SendTo, commandline)
       Print_to_Log(2, ' -- Changed to devicelevel due to showactions defined for device ' .. rdevicename)
       response = DTGMenu_translate_desc(_G.MenuLanguage, 'SelectOptionwo') .. ' ' .. rdevicename
     else
-      if (_G.dtgmenu_submenus[submenu].nbrbuttons or 1) > 0 then
+      -- DTGMenu_Lang[_G.MenuLanguage].command['back']
+      -- DTGMenu_translate_desc(_G.MenuLanguage, 'Back', 'Back')
+      if submenu == DTGMenu_Lang[_G.MenuLanguage].command['back'] then
+        response = submenu .. ':' .. DTGMenu_translate_desc(_G.MenuLanguage, 'Select', 'Select option.')
+        Print_to_Log(2, '-< Back,Show options menu plus other devices in submenu.')
+      elseif (_G.dtgmenu_submenus[submenu].nbrbuttons or 1) > 0 then
       -- if (replymarkup or '') ~= '' then
         response = submenu .. ':' .. DTGMenu_translate_desc(_G.MenuLanguage, 'Select', 'Select option.')
         Print_to_Log(2, '-< Show options menu plus other devices in submenu.')

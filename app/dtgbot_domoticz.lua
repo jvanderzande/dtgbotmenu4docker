@@ -1,4 +1,4 @@
-_G.dtg_domoticz_version = '1.0 202512221145'
+_G.dtg_domoticz_version = '1.0 202512221954'
 --[[
 	A set of support functions used for DTGBOT
 	Developer: Jos v.d.Zande
@@ -399,6 +399,10 @@ function Domo_Devinfo_From_Name(idx, DeviceName, DeviceScene)
 		Type = 'command'
 		SwitchType = 'command'
 	end
+ -- escape all \n and " in status to avoid problems in the replymarkup
+  status = status:gsub('\n', ' ')
+  status = status:gsub('"', '\\"')
+
 	Print_to_Log(2, ' --< Domo_Devinfo_From_Name:', found, ridx, rDeviceName, DeviceType, Type, SwitchType, status, LevelNames, LevelInt)
 	return ridx, rDeviceName, DeviceType, Type, SwitchType, MaxDimLevel, status, LevelNames, LevelInt
 end
