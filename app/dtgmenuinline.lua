@@ -1,4 +1,4 @@
-_G.dtgmenuinline_version = '1.0 202510012145'
+_G.dtgmenuinline_version = '1.0 202512221734'
 local dtgmenuinline = {}
 
 --[[
@@ -119,7 +119,9 @@ function dtgmenuinline.makereplymenu(SendTo, Level, submenu, devicename)
         end
       end)()
     end
-    l2menu = l2menu .. ']'
+    if l2menu ~= '' then
+      l2menu = l2menu .. ']'
+    end
   end
   -------------------------------------------------------------------
   -- Start building the proper layout for the 3 levels of menu items
@@ -492,7 +494,13 @@ function dtgmenuinline.handler(menu_cli, SendTo)
       Print_to_Log(2, ' -- Changed to devicelevel due to showactions defined for device ' .. rdevicename)
       response = DTGMenu_Lang[_G.MenuLanguage].text['SelectOptionwo'] .. ' ' .. rdevicename
     else
-      response = submenu .. ':' .. DTGMenu_Lang[_G.MenuLanguage].text['Select']
+      if (_G.dtgmenu_submenus[submenu].nbrbuttons or 1) > 0 then
+        response = submenu .. ':' .. DTGMenu_Lang[_G.MenuLanguage].text['Select']
+        Print_to_Log(9, '-< Show options menu plus other devices in submenu.')
+      else
+        response = "There are no active devices for room " .. submenu
+        Print_to_Log(9, '-< Show options menu plus other devices in submenu, but no devices to show.')
+      end
     end
     status = 1
     Print_to_Log(0, '==< show options in submenu.')

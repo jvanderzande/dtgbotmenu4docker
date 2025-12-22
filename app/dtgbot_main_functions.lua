@@ -1,4 +1,4 @@
-_G.dtg_main_functions_version = '1.0 202512181606'
+_G.dtg_main_functions_version = '1.0 202512221445'
 _G.msgids_removed = {}
 --[[
 	Functions library for the Main process in DTGBOT
@@ -472,7 +472,7 @@ function HandleCommand(cmd, SendTo, Group, MessageId, chat_type)
 		Telegram_SendMessage(SendTo, 'Reloading dtgbot:' .. text, MessageId, replymarkup, '', handled_by)
 		os.exit(1)
 	elseif string.lower(parsed_command[2]) == 'exit_menu'
-		or string.lower(cmd) == string.lower(DTGMenu_Lang[_G.MenuLanguage].command['exit_menu'] or 'exit_menu') then
+		or (string.lower(cmd) == string.lower(DTGMenu_Lang[_G.MenuLanguage].command['exit_menu'] or 'exit_menu')) then
 		Print_to_Log(0, '-> Start exit_menu process.')
 		if MenuMessagesCleanOnExit then
 			-- remove all previous menu messages
@@ -481,9 +481,10 @@ function HandleCommand(cmd, SendTo, Group, MessageId, chat_type)
 			Telegram_Remove_Message(SendTo, MessageId)
 			-- set MessageId to '' because we can't reply to it anymore
 			MessageId = ''
-			text = DTGMenu_translate_desc(_G.MenuLanguage, 'exit', 'exit Menu type /menu to show it again.')
 		end
 		found = true
+		replymarkup = '{"remove_keyboard":true}'
+		text = DTGMenu_translate_desc(_G.MenuLanguage, 'exit', 'exit Menu type /menu to show it again.')
 	elseif string.lower(parsed_command[2]) == '_cleanall' then
 		Print_to_Log(0, '-> Start _cleanall process.')
 		Telegram_Save_Clean_Messages(SendTo, MessageId, 0, '', true)
@@ -602,7 +603,7 @@ function HandleCommand(cmd, SendTo, Group, MessageId, chat_type)
 		end
 	end
 	--~ replymarkup
-	if parsed_command[2] ~= 'inlineaction' and (replymarkup == nil or replymarkup == '') and savereplymarkup then
+	if parsed_command[2] ~= 'inlineaction' and (replymarkup == nil or replymarkup == '') and (savereplymarkup or '') ~= '' then
 		-- restore the menu supplied replymarkup in case the shelled LUA didn't provide one
 		replymarkup = savereplymarkup or ''
 		Print_to_Log(2, 'restored previous replymarkup:' .. replymarkup)

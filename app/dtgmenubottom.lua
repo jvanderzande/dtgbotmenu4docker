@@ -1,4 +1,4 @@
-_G.dtgmenubottom_version = '1.0 202512102224'
+_G.dtgmenubottom_version = '1.0 202512221818'
 --[[
 	Script to support the Bottmon Menu Keyboard option for DTGBOT
 	Developer: jvdzande
@@ -85,7 +85,7 @@ function dtgmenubottom.makereplymenu(SendTo, Level, submenu, devicename)
   Print_to_Log(2, 'submenu: ' .. submenu)
   if (Level == 'submenu' or Level == 'devicemenu')
     and _G.dtgmenu_submenus[submenu] and _G.dtgmenu_submenus[submenu].buttons then
-    -- loop through all devined "buttons in the Config
+    -- loop through all defined "buttons in the Config
     for i, get in orderedPairs(_G.dtgmenu_submenus[submenu].buttons) do
       (function()
         -- process all found devices in  _G.dtgmenu_submenus buttons table
@@ -339,7 +339,7 @@ function dtgmenubottom.handler(menu_cli, SendTo, commandline)
   if cmdisaction == false and
     (
       lcommand == 'exit_menu'
-      or (lcommandline == DTGMenu_Lang[_G.MenuLanguage].command['exit_menu'])
+      or (lcommandline:lower() == DTGMenu_Lang[_G.MenuLanguage].command['exit_menu']:lower())
     ) then
     -- ensure the menu is always rebuild for Menu or Start
     response = DTGMenu_translate_desc(_G.MenuLanguage, 'exit', 'exit Menu type /menu to show it again.')
@@ -553,7 +553,14 @@ function dtgmenubottom.handler(menu_cli, SendTo, commandline)
       Print_to_Log(2, ' -- Changed to devicelevel due to showactions defined for device ' .. rdevicename)
       response = DTGMenu_translate_desc(_G.MenuLanguage, 'SelectOptionwo') .. ' ' .. rdevicename
     else
-      response = submenu .. ':' .. DTGMenu_translate_desc(_G.MenuLanguage, 'Select', 'Select option.')
+      if (_G.dtgmenu_submenus[submenu].nbrbuttons or 1) > 0 then
+      -- if (replymarkup or '') ~= '' then
+        response = submenu .. ':' .. DTGMenu_translate_desc(_G.MenuLanguage, 'Select', 'Select option.')
+        Print_to_Log(2, '-< Show options menu plus other devices in submenu.')
+      else
+        response = "There are no active devices for room " .. submenu
+        Print_to_Log(2, '-< Show options menu plus other devices in submenu, but no devices to show.')
+      end
     end
     Print_to_Log(2, '-< show options in submenu.')
     _G.Persistent[SendTo].bbLastCommand = bLastCommand

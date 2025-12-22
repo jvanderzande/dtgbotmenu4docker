@@ -1,4 +1,4 @@
-_G.dtgmenu_version = '1.0 202505122058'
+_G.dtgmenu_version = '1.0 202512221733'
 -- ============================================================================================================
 -- ============================================================================================================
 -- Menu script which enables the option in DTGBOT to use a reply keyboard to perform actions on:
@@ -169,6 +169,7 @@ function MakeRoomMenus(iLevel, iSubmenu)
   local room_number = 0
   local room_name = ''
   local mbuttons = {}
+  local mbuttoncnt = 0
 
   ------------------------------------
   -- process all Rooms
@@ -188,12 +189,12 @@ function MakeRoomMenus(iLevel, iSubmenu)
     local Devsinplan = _G.Domo_Device_List('plandevices', room_number) or {}
     local DIPresult = Devsinplan['result'] or {}
     Print_to_Log(2, 'For room ' .. room_name .. '/' .. room_number .. ' got some devices and/or scenes')
-    _G.dtgmenu_submenus[rbutton] = { RoomNumber = room_number, whitelist = '', showdevstatus = 'y', buttons = {} }
     -----------------------------------------------------------
     -- process all found entries in the plan record
     -----------------------------------------------------------
     if type(DIPresult) == 'table' then
       mbuttons = {}
+      mbuttoncnt = 0
       local function GetStatusFromTables(idx, name, type)
         Print_to_Log(9, 'GetStatusFromTables: ' .. (idx or '?') .. ' ' .. (name or '??') .. ' ' .. (type or '?') .. ' ')
         local record = nil
@@ -268,7 +269,7 @@ function MakeRoomMenus(iLevel, iSubmenu)
             end
             Print_to_Log(9, '-#> x device info LevelNames:' .. LevelNames)
           end
-          -- Remove the name of the room from the device if it is present and any susequent Space or Hyphen or underscore
+          -- Remove the name of the room from the device if it is present and any subsequent Space or Hyphen or underscore
           local button = string.gsub(DeviceName, room_name .. '[%s-_]*', '')
           -- But reinstate it if less than 3 letters are left
           if #button < 3 then
@@ -280,33 +281,41 @@ function MakeRoomMenus(iLevel, iSubmenu)
           if DeviceType == 'scenes' then
             button = '*' .. button
           end
-          -- fill the button table records with all required fields
-          mbuttons[button] = {}
-          -- Retrieve id white list
-          mbuttons[button].whitelist = '' -- Not implemented for Dynamic menu: Whitelist number(s) for this device, blank is ALL
-          -- check for LevelNames
-          if LevelNames == '' or LevelNames == nil then
-            mbuttons[button].actions = '' -- Not implemented for Dynamic menu: Hardcoded Actions for the device
-          else
-            mbuttons[button].actions = LevelNames:gsub('|', ',')
+          if button ~= '' then
+            mbuttoncnt = mbuttoncnt + 1
+            -- fill the button table records with all required fields
+            mbuttons[button] = {}
+            -- Retrieve id white list
+            mbuttons[button].whitelist = '' -- Not implemented for Dynamic menu: Whitelist number(s) for this device, blank is ALL
+            -- check for LevelNames
+            if LevelNames == '' or LevelNames == nil then
+              mbuttons[button].actions = '' -- Not implemented for Dynamic menu: Hardcoded Actions for the device
+            else
+              mbuttons[button].actions = LevelNames:gsub('|', ',')
+            end
+            mbuttons[button].prompt = false      -- Not implemented for Dynamic menu: Prompt TG client for the variable text
+            mbuttons[button].showactions = false -- Not implemented for Dynamic menu: Show Device action menu right away when its menu is selected
+            mbuttons[button].Name = DeviceName   -- Original devicename needed to be able to perform the "Set new status" commands
+            mbuttons[button].idx = idx
+            mbuttons[button].DeviceType = DeviceType
+            mbuttons[button].SwitchType = SwitchType
+            mbuttons[button].Type = Type
+            mbuttons[button].MaxDimLevel = MaxDimLevel -- Level required to calculate the percentage for devices that do not use 100 for 100%
+            mbuttons[button].Status = Status
+            Print_to_Log(9, ' Dynamic ->', rbutton, button, DeviceName .. '=' .. idx, DeviceType, Type, SwitchType, MaxDimLevel, Status)
           end
-          mbuttons[button].prompt = false      -- Not implemented for Dynamic menu: Prompt TG client for the variable text
-          mbuttons[button].showactions = false -- Not implemented for Dynamic menu: Show Device action menu right away when its menu is selected
-          mbuttons[button].Name = DeviceName   -- Original devicename needed to be able to perform the "Set new status" commands
-          mbuttons[button].idx = idx
-          mbuttons[button].DeviceType = DeviceType
-          mbuttons[button].SwitchType = SwitchType
-          mbuttons[button].Type = Type
-          mbuttons[button].MaxDimLevel = MaxDimLevel -- Level required to calculate the percentage for devices that do not use 100 for 100%
-          mbuttons[button].Status = Status
-          Print_to_Log(2, ' Dynamic ->', rbutton, button, DeviceName .. '=' .. idx, DeviceType, Type, SwitchType, MaxDimLevel, Status)
         end
       end
     end
     --Group change    end
     -- Save the Room entry with optionally all its devices/sceens
-    Print_to_Log(9, '$$$$$> ' .. rbutton .. ' ->RoomButtons:' .. JSON.encode(mbuttons))
-    _G.dtgmenu_submenus[rbutton] = { RoomNumber = room_number, whitelist = '', showdevstatus = 'y', buttons = mbuttons }
+    _G.dtgmenu_submenus[rbutton] = { RoomNumber = room_number, whitelist = '', showdevstatus = 'y', buttons = mbuttons, nbrbuttons = mbuttoncnt }
+    if mbuttoncnt == 0 then
+      Print_to_Log(2, '==< ' .. rbutton .. ' no (active) Devices found!')
+    _G.dtgmenu_submenus[rbutton] = { RoomNumber = room_number, whitelist = '', showdevstatus = 'y', buttons = {}, nbrbuttons = 0 }
+    else
+      Print_to_Log(2, '==< ' .. rbutton .. ' ->RoomButtons:' .. JSON.encode(mbuttons))
+    end
   end
 end
 
