@@ -1,4 +1,4 @@
-_G.dtg_main_functions_version = '1.0 202512221445'
+_G.dtg_main_functions_version = '1.0 202512231626'
 _G.msgids_removed = {}
 --[[
 	Functions library for the Main process in DTGBOT
@@ -26,23 +26,9 @@ end
 ---------------------------------------------------------
 -- GetUrl to set protocol and timeout
 function _G.PerformTelegramRequest(url)
-	local resp = {}
 	Print_to_Log(9, url)
-	local r, returncode, h, s =
-		_G.HTTPS.request {
-			url = url,
-			sink = ltn12.sink.table(resp),
-			protocol = 'tlsv1_2',
-			timeout = (_G.Telegram_Longpoll_TimeOut or 10) + 20
-		}
-	returncode = returncode or 9999
-
-
-	local response = ''
-	-- read response table records and make them one string
-	for i = 1, #resp do
-		response = response .. resp[i]
-	end
+	local timeout =_G.Telegram_Longpoll_TimeOut or 30
+	local response, returncode = _G.Perform_Webquery(url, 99, timeout+5)
 	Print_to_Log(9, 'Telegram response:', returncode, response)
 	return response, returncode
 end
@@ -122,7 +108,7 @@ function _G.DtgBot_Initialise()
 				Print_to_Log(-1, '!> problem connecting to TelegramBotUrl=' .. _G['Telegram_Url'] .. '. did the BOTTOKEN change or are there connection issues?')
 			end
 			Print_to_Log(-1, 'Will try again in 15 seconds.')
-			_G.SOCKET.sleep(15)
+			os.execute('sleep 15')
 		else
 			-- Don't retry when container is started for the firsttime assuming the compose definition is wrong
 			Print_to_Log(-1, '> ------------------------------------------------------------------')
@@ -143,7 +129,7 @@ function _G.DtgBot_Initialise()
 	end
 
 	-- Make backup of config at startup
-	os.execute("cp " .. _G.BotDataPath .. 'dtgbot__configuser.json ' ..  _G.BotDataPath .. 'dtgbot__configuser_prev.json')
+	os.execute('cp ' .. _G.BotDataPath .. 'dtgbot__configuser.json ' .. _G.BotDataPath .. 'dtgbot__configuser_prev.json')
 
 	--Set global variables _G.DomoticzRevision _G.DomoticzVersion
 	Print_to_Log(-1, 'Domoticz version :' .. _G.DomoticzVersion .. '  Revision:' .. _G.DomoticzRevision .. '  BuildDate:' .. _G.DomoticzBuildDate)
@@ -319,7 +305,6 @@ end
 -- Step 2: Handle the received command/data
 -- Process the received command
 function HandleCommand(cmd, SendTo, Group, MessageId, chat_type)
-
 	chat_type = chat_type or ''
 	local found = nil
 	local parsed_command = {}
@@ -417,7 +402,7 @@ function HandleCommand(cmd, SendTo, Group, MessageId, chat_type)
 			end
 		end
 		-- Update Command when previous was the real command and this msg is the answer to the prompt
-		if _G.Persistent.prompt==1 and _G.Persistent.promptcommandline ~= '' then
+		if _G.Persistent.prompt == 1 and _G.Persistent.promptcommandline ~= '' then
 			parsed_command[3] = parsed_command[2]
 			parsed_command[2] = _G.Persistent.promptcommandline
 			_G.Persistent.prompt = 0
@@ -564,11 +549,11 @@ function HandleCommand(cmd, SendTo, Group, MessageId, chat_type)
 						handled_by = string.lower(parsed_command[2])
 						-- add following variables to the env
 						local SetEnv = '\n' ..
-								'export DomoticzUrl=' .. _G.DomoticzUrl .. '\n' ..
-								'export Telegram_Url=' .. _G.Telegram_Url .. '\n' ..
-								'export DomoticzRevision=' .. _G.DomoticzRevision .. '\n' ..
-								'export DomoticzVersion=' .. _G.DomoticzVersion:match("[%d%.]*") .. '\n' ..
-								'export DomoticzBuildDate=' .. _G.DomoticzBuildDate .. '\n'
+							'export DomoticzUrl=' .. _G.DomoticzUrl .. '\n' ..
+							'export Telegram_Url=' .. _G.Telegram_Url .. '\n' ..
+							'export DomoticzRevision=' .. _G.DomoticzRevision .. '\n' ..
+							'export DomoticzVersion=' .. _G.DomoticzVersion:match('[%d%.]*') .. '\n' ..
+							'export DomoticzBuildDate=' .. _G.DomoticzBuildDate .. '\n'
 						Print_to_Log(2, _G.Sprintf('->Set env %s', SetEnv))
 						local handle = io.popen(SetEnv .. ' bash ' .. bashpath .. line .. ' ' .. SendTo .. ' ' .. params)
 						if handle then
@@ -1180,5 +1165,87 @@ end
 
 function StrTrim(s)
 	s = s or ''
-  return s:match "^%s*(.-)%s*$"
+	return s:match '^%s*(.-)%s*$'
+end
+
+function Perform_Webquery(url, loglevel, timeout)
+	loglevel = loglevel or 9
+	timeout = timeout or 5
+	-- Show retrieved webdat by default or else depening on mydebug
+	-- Define Web Query
+	url = '"' .. url .. '"'
+	local sQuery = 'curl -L -k -m ' .. timeout .. ' --silent -w "\\n#@#httprc:%{http_code}#@#\\n#@#endurl:%{url_effective}#@#" ' .. url
+	local errlogfile = _G.BotTempDir .. 'webquery_err.log'
+	-- Pipe STDERR to file when defined
+	sQuery = sQuery .. ' 2>' .. errlogfile
+	-- Run Query
+	Print_to_Log(loglevel, 'sQuery=' .. sQuery)
+	local handle = assert(io.popen(sQuery))
+	local Web_Data = handle:read('*all')
+	handle:close()
+	-- Get effective url and http response code from the output and strip it from the result output
+	--Print_to_Log(loglevel,Web_Data)
+	local httprc = tonumber(Web_Data:match('#@#httprc:([^#]*)#@#') or 999)
+	local redirecturl = '"' .. (Web_Data:match('#@#endurl:([^#]*)#@#') or '?') .. '"'
+	if Web_Data:find('(.*)\n#@#httprc:') then
+		Web_Data = Web_Data:match('(.*)\n#@#httprc:')
+	end
+	-- Show Webdata retrieved
+	Print_to_Log(loglevel, '--- url: ' .. redirecturl .. ' rc:' .. (httprc or '?') .. '  web data:  --------')
+	Print_to_Log(loglevel, Web_Data)
+	-- Check for 301 Moved Permanently
+	if (httprc == '301' or Web_Data:find('Moved Permanently')) then
+		Print_to_Log(loglevel, '### Error: Site Moved Permanently: check your hostname for changes!', 1)
+		local lWeb_Data = Web_Data:gsub('.-<body>(.-)</body>.*', '%1')
+		lWeb_Data = lWeb_Data:gsub('[\r\n]', '')
+		Print_to_Log(loglevel, lWeb_Data, 1)
+		return ''
+	end
+	-- Check redirection to warn
+	if (url ~= redirecturl and redirecturl ~= '?') then
+		Print_to_Log(loglevel, '### warning: Site redirected from : ' .. url .. '  to : ' .. redirecturl, 1)
+	end
+	-- Check for Web request errors when seperate file is defined, else all output is in Web_Data
+	local Web_Error = ''
+	local ifile, ierr = io.open(errlogfile, 'r')
+	Web_Error = ierr or ''
+	if ifile then
+		Web_Error = ifile:read('*all')
+		ifile:close()
+	end
+	if Web_Error ~= '' then
+		Print_to_Log(loglevel, '---- web err ------------------------------------------------------------------------')
+		Print_to_Log(loglevel, 'Web_Err=' .. Web_Error)
+	end
+	--os.remove(errlogfile)
+	Print_to_Log(loglevel, '---- end web data ------------------------------------------------------------------------')
+	if (Web_Error:find('unsupported protocol')) then
+		Print_to_Log(loglevel, '### Error: unsupported protocol.')
+		Print_to_Log(loglevel, '###  This website still uses tls 1.0 and Debian Buster (and up) has set the minssl to tls 1.2 so will fail.')
+		Print_to_Log(loglevel, '###  To fix: Set /etc/ssl/openssl.cnf; goto section [system_default_sect]; Change-> MinProtocol = TLSv1.0 ;  and reboot')
+		return ''
+	end
+
+	return Web_Data, httprc
+end
+
+local b='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'
+
+function Base64_Decode(data)
+    data = string.gsub(data, '[^'..b..'=]', '')
+    return (data:gsub('.', function(x)
+        if (x == '=') then return '' end
+        local r,f='',(b:find(x)-1)
+        for i=6,1,-1 do
+            r = r .. (f%2^i - f%2^(i-1) > 0 and '1' or '0')
+        end
+        return r
+    end):gsub('%d%d%d?%d?%d?%d?%d?%d?', function(x)
+        if (#x ~= 8) then return '' end
+        local c=0
+        for i=1,8 do
+            c = c + (x:sub(i,i)=='1' and 2^(8-i) or 0)
+        end
+        return string.char(c)
+    end))
 end

@@ -1,4 +1,4 @@
-_G.dtgbot_version = '1.0 202512141528'
+_G.dtgbot_version = '1.0 202512231623'
 --[[
 	Main process for DTGBOT
 	Developer: jvdzande
@@ -60,12 +60,7 @@ local yreturn_status, yresult =
 			package.path = _G.ScriptDirectory .. '?.lua;' .. package.path
 			--------------------------------------------------------------------------------
 			-- Load required files
-			_G.HTTP = require 'socket.http' --lua-sockets
-			_G.ltn12 = require('ltn12')
-			_G.SOCKET = require 'socket' --lua-sockets
-			_G.HTTPS = require 'ssl.https' --lua-sockets
 			_G.JSON = require 'json'     -- lua-json
-			_G.MIME = require('mime')    -- ???
 
 			_G.ConfigActive = {}         -- table to store the active config
 			_G.ConfigUser = {}           -- table to store the user configuration

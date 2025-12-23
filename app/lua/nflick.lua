@@ -35,7 +35,8 @@ function nflick_module.handler(parsed_cli)
 	Print_to_Log(1, 'in flick_handler!');
 	t = _G.DomoticzUrl .. '/json.htm?type=command&param=switchlight&idx=' .. idx .. '&switchcmd=' .. state .. '&level=0';
 	Print_to_Log(2, 'JSON request <' .. t .. '>');
-	jresponse, status = _G.HTTP.request(t)
+	jresponse, status = _G.Perform_Webquery(t, 99, 3)
+	-- jresponse, status = _G.HTTP.request(t)
 	Print_to_Log(9, 'raw jason', jresponse)
 	return status, response;
 end
