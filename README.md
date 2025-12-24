@@ -31,11 +31,14 @@ services:
     restart: on-failure
     image: jvdzande/dtgbotmenu:latest
     environment:
-      - TZ=Europe/Amsterdam                                            # Timezone setting
+      - TZ=Europe/Amsterdam      # Timezone setting
       - DomoticzURL=http://dtgbot:domoticz@domoticz-host:8080          # your domoticz url
       - TelegramBotToken=121212121:Aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa  # your bottoken
-    # - SECURITY_PIN=111                                               # Optional Security Pin for WebFrontend
-    # - CHECK4UPDATES=y                                                # Optional Check for updates on hub.docker.com when opening index.php
+    #  - SECURITY_PIN=111        # Optional Security Pin for WebFrontend
+    #  - CHECK4UPDATES=y         # Optional Check for updates on hub.docker.com when opening index.php
+    #  - LOG_MAX_SIZE=1          # max logfile sizes in Mb, rotate when larger
+    #  - LOG_MAX_AGE=7           # max logfile days old, rotate when older
+    #  - LOG_KEEP=5              # History of logfiles to keep
     ports:
       - 8099:8099                          # External port to use on the host. default 8099
     volumes:
