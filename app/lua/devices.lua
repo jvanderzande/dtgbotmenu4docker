@@ -90,8 +90,8 @@ function devices_module.handler(parsed_cli)
 end
 
 local devices_commands = {
-	['devices'] = { handler = devices_module.handler, description = '>devices - return list of all devices\n>devices Room - all devices that start with Room\n Options\n  -c = contains instead of start with\n  -s = Also show current status' },
-	['scenes'] = { handler = devices_module.handler, description = '>scenes - scenes - return list of all scenes\n>scenes down - all scenes that start with down' }
+	['devices'] = { handler = devices_module.handler, description = 'devices - return list of all devices\n>devices Room - all devices that start with Room\n Options\n  -c = contains instead of start with\n  -s = Also show current status' },
+	['scenes'] = { handler = devices_module.handler, description = 'scenes - scenes - return list of all scenes\n>scenes down - all scenes that start with down' }
 }
 
 function devices_module.get_commands()
