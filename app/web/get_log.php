@@ -16,42 +16,111 @@ $clearlog = (isset($_GET['clearlog']) ? $_GET['clearlog'] : "n") ;
 
 // read the textfile
 $file = $DTGBotDataPath.'logs/dtgbot.log';
+$prevfile = $DTGBotDataPath.'logs/prev_dtgbot.log';
 $ConfigUser = $DTGBotDataPath.'dtgbot__configuser.json';
 if ($clearlog == 'y') {
     // exec('bash -c "sh /dtgbotinit/logrotate.sh dtgbot.log" > /tmp/logrotate.log 2>&1');
     rotateLogfile("dtgbot.log", true);
-    echo htmlspecialchars((string)file_get_contents($file));
-} else {
-    // check logrotation first
-    rotateLogs();
-    // get the text
+}
+
+// check logrotation first
+rotateLogs();
+
+// get the text compressed duplicate lines
+$logtext = get_log($file, true);
+$curlogrecords = count(explode("\n", $logtext));
+if ( $curlogrecords < 50 ) {
+    // get last rotated log and add the last 50 lines to the current returned log
+    $logtext = get_log($prevfile, true, 50-$curlogrecords) . "\n" . $logtext;
+};
+
+preg_match_all("|Telegram ChatID ([-\d]*) Not in ChatIDWhiteList|U",$logtext, $out, PREG_PATTERN_ORDER);
+$cnt = 0;
+if (count($out) > 0) {
+    $output = file_get_contents($ConfigUser);
+    $CurrDTGBotConfig = json_decode($output, true) ;
+}
+// Process Whitelist against any log message errors to fiend missing chatid's
+foreach ($out[1] as $TelegramId) {
+    // Check if in config already
+    if (!isset($CurrDTGBotConfig["ChatIDWhiteList"])) {
+        $CurrDTGBotConfig["ChatIDWhiteList"] = [];
+    }
+
+    if (!isset($CurrDTGBotConfig["ChatIDWhiteList"][$TelegramId])) {
+        // Add as blocked and show in the gui
+        $cnt += 1;
+        $CurrDTGBotConfig["ChatIDWhiteList"][$TelegramId] = ["Name" => "???","Active" => "false"];
+        file_put_contents($file, date("Y-m-d H:i:s") . " !!! Telegram ChatID $TelegramId added to ChatIDWhiteList. Open Configuration Menu to unblock the account.\n", FILE_APPEND);
+    }
+}
+if ($cnt > 0) {
+    // Save the new config
+    file_put_contents($ConfigUser, json_encode($CurrDTGBotConfig, JSON_UNESCAPED_SLASHES + JSON_FORCE_OBJECT + JSON_PRETTY_PRINT));
+}
+// return the text
+echo htmlspecialchars((string)$logtext);
+
+function get_log($file, $compressed=false, $lastlines=0) {
     $logtext = file_get_contents($file);
-    preg_match_all("|Telegram ChatID ([-\d]*) Not in ChatIDWhiteList|U",$logtext, $out, PREG_PATTERN_ORDER);
-    $cnt = 0;
-    if (count($out) > 0) {
-        $output = file_get_contents($ConfigUser);
-        $CurrDTGBotConfig = json_decode($output, true) ;
+    if ($compressed) {
+        $logtext = compressDuplicateLogMessages($logtext);
     }
-    // Process Whitelist against any log message errors to fiend missing chatid's
-    foreach ($out[1] as $TelegramId) {
-        // Check if in config already
-        if (!isset($CurrDTGBotConfig["ChatIDWhiteList"])) {
-            $CurrDTGBotConfig["ChatIDWhiteList"] = [];
+    if ($lastlines > 0) {
+        $lines = explode("\n", $logtext);
+        $logtext = implode("\n", array_slice($lines, -$lastlines));
+    }
+    return $logtext;
+}
+
+// Collapse runs of identical log message bodies (keep first and last, insert skipped count)
+function compressDuplicateLogMessages(string $logtext): string
+{
+    $lines = preg_split("/\r\n|\n|\r/", $logtext);
+    $out = [];
+    $n = count($lines);
+    $i = 0;
+    while ($i < $n) {
+        $line = $lines[$i];
+        if ($line === '') {
+            $out[] = $line;
+            $i++;
+            continue;
         }
 
-        if (!isset($CurrDTGBotConfig["ChatIDWhiteList"][$TelegramId])) {
-            // Add as blocked and show in the gui
-            $cnt += 1;
-            $CurrDTGBotConfig["ChatIDWhiteList"][$TelegramId] = ["Name" => "???","Active" => "false"];
-            file_put_contents($file, date("Y-m-d H:i:s") . " !!! Telegram ChatID $TelegramId added to ChatIDWhiteList. Open Configuration Menu to unblock the account.\n", FILE_APPEND);
+        // Normalize by removing leading timestamp (YYYY-MM-DD HH:MM:SS : ) if present
+        $norm = preg_replace('/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2} :\s*/', '', $line);
+
+        // Find run of subsequent lines with same normalized message
+        $j = $i + 1;
+        while ($j < $n) {
+            $next = $lines[$j];
+            $nextNorm = preg_replace('/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2} :\s*/', '', $next);
+            if ($nextNorm === $norm) {
+                $j++;
+            } else {
+                break;
+            }
         }
-    }
-    if ($cnt > 0) {
-        // Save the new config
-        file_put_contents($ConfigUser, json_encode($CurrDTGBotConfig, JSON_UNESCAPED_SLASHES + JSON_FORCE_OBJECT + JSON_PRETTY_PRINT));
+
+        $run = $j - $i;
+        if ($run <= 2) {
+            // copy all lines as-is for short runs (1 or 2)
+            for ($k = $i; $k < $j; $k++) {
+                $out[] = $lines[$k];
+            }
+        } else {
+            // keep first, indicate skipped count, keep last
+            $out[] = $lines[$i];
+            $skipped = $run - 2;
+            $out[] = "--> skipped {$skipped} similar messages.";
+            $out[] = $lines[$j - 1];
+        }
+
+        $i = $j;
     }
 
-    echo htmlspecialchars((string)file_get_contents($file));
+    return implode("\n", $out);
 }
 
 // process logfiles in directory of specific file
@@ -116,9 +185,13 @@ function rotateLogfile(string $file, bool $pforced = false): void
     // truncate + init line
     file_put_contents(
         $file,
-        date('Y-m-d H:i:s') . " Logfile $file rotated to -> {$rotated}\n"
+        date('Y-m-d H:i:s') . "=============== Logfile $file rotated to -> {$rotated} =======================\n"
     );
 
+    // save dtgbot.log to prevdtgbot.log for display purposes
+    if ($file == 'dtgbot.log') {
+        copy($file, 'prev_dtgbot.log');
+    }
     // compress rotated file
     exec('gzip ' . escapeshellarg($rotated));
 
