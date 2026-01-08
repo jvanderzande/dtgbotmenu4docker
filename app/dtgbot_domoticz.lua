@@ -1,4 +1,4 @@
-_G.dtg_domoticz_version = '1.0 202512231624'
+_G.dtg_domoticz_version = '1.0 202512281609'
 --[[
 	A set of support functions used for DTGBOT
 	Developer: Jos v.d.Zande
@@ -258,6 +258,7 @@ function Domo_Get_Device_Information(DeviceType)
 end
 
 function Domo_Idx_From_Name(DeviceName, DeviceType)
+	DeviceType = DeviceType or 'devices'
 	--returns a device idx based on its name
 	if DeviceType == 'devices' then
 		if DevicelistByName[string.lower(DeviceName)] then
@@ -276,6 +277,22 @@ function Domo_Idx_From_Name(DeviceName, DeviceType)
 	else
 		return Roomlist[DeviceName]
 	end
+end
+
+function Domo_Name_From_Idx(DeviceIdx, DeviceType)
+	local Name=''
+	DeviceType = DeviceType or 'devices'
+	if DeviceIdx then
+		if DeviceType == 'devices' then
+			Name = _G.DevicelistByIDX[tostring(DeviceIdx)]
+		elseif DeviceType == 'scenes' then
+			Name = _G.ScenelistByIDX[tostring(DeviceIdx)]
+		end
+		if Name then
+			Name = Name['Name'] or ''
+		end
+	end
+	return Name
 end
 
 function Domo_Retrieve_Status(idx, DeviceType)
