@@ -1,4 +1,4 @@
-_G.dtgbot_version = '1.0 202512231623'
+_G.dtgbot_version = '1.0 202601091707'
 --[[
 	Main process for DTGBOT
 	Developer: jvdzande
@@ -438,6 +438,8 @@ local xreturn_status, xresult =
 							break
 						end
 						Print_to_Log(1, '- No bot messages, next longpoll..')
+						-- check if logrotation is required
+						CheckLogs()
 					elseif status == 409 then
 						if telegram_connected then
 							Print_to_Log(-1, _G.Sprintf('### rc:%s Is there another Longpoll or Webhook active for this bot? response: %s', (status or '?'), (response or '?')))

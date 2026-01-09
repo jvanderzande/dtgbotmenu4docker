@@ -1,4 +1,4 @@
-_G.dtg_main_functions_version = '1.0 202512231626'
+_G.dtg_main_functions_version = '1.0 202601091832'
 _G.msgids_removed = {}
 --[[
 	Functions library for the Main process in DTGBOT
@@ -1227,6 +1227,24 @@ function Perform_Webquery(url, loglevel, timeout)
 	end
 
 	return Web_Data, httprc
+end
+
+function CheckLogs()
+	local chktime = os.time()
+	_G.Persistent.logchecktime = _G.Persistent.logchecktime or 0
+	-- perform logrotate check one time per day
+	if (chktime - _G.Persistent.logchecktime) < 24 * 60 * 60 then
+		return
+	end
+	_G.Persistent.logchecktime = chktime
+	-- perform webquery to force logrotate when needed
+	local response, status = _G.Perform_Webquery('http://127.0.0.1:8099/get_log.php?checklog', 2)
+	if status == 200 then
+		Print_to_Log(0, 'Daily Logrotate performed')
+	else
+		Print_to_Log(0, 'Daily Logrotate failed: rc:' .. (status or '?') .. ' response:' .. (response or '?'))
+	end
+	_G.Save_Persistent_Vars()
 end
 
 local b='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'

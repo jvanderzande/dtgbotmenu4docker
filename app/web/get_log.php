@@ -3,7 +3,12 @@
 
 // Check if PIN verification is needed
 require_once 'security.php';
-if (!requirePIN()) {
+
+// Allow localhost requests without PIN verification
+$remoteAddr = $_SERVER['REMOTE_ADDR'];
+$isLocalhost = ($remoteAddr === '127.0.0.1' || $remoteAddr === 'localhost' || $remoteAddr === '::1');
+
+if (!$isLocalhost && !requirePIN()) {
     die("Login Required");
 }
 
@@ -13,6 +18,7 @@ if ($DTGBotDataPath == '') {
     $DTGBotDataPath = '/data/';
 }
 $clearlog = (isset($_GET['clearlog']) ? $_GET['clearlog'] : "n") ;
+$checklog = (isset($_GET['checklog']) ? "y" : "n") ;
 
 // read the textfile
 $file = $DTGBotDataPath.'logs/dtgbot.log';
@@ -25,6 +31,9 @@ if ($clearlog == 'y') {
 
 // check logrotation first
 rotateLogs();
+if ($checklog == 'y') {
+    die("Log rotation checked.\n");
+}
 
 // get the text compressed duplicate lines
 $logtext = get_log($file, true);
