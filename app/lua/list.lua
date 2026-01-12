@@ -26,7 +26,8 @@ function list_module.handler(parsed_cli)
 	else
 		t = _G.DomoticzUrl .. '/json.htm?type=devices'
 	end
-	jresponse, status = _G.HTTP.request(t)
+	jresponse, status = _G.Perform_Webquery(t, 99, 3)
+	-- jresponse, status = _G.HTTP.request(t)
 	decoded_response = _G.JSON.decode(jresponse) or {}
 	if type(decoded_response) == 'table' then
 		for k, record in pairs(decoded_response) do

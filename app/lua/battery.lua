@@ -15,7 +15,7 @@ local function get_battery_level(DeviceName)
 	end
 
 	Print_to_Log(0, 'JSON request <' .. t .. '>')
-	local jresponse, status = _G.HTTP.request(t)
+	local jresponse, status = _G.Perform_Webquery(t, 99, 3)
 	local decoded_response = _G.JSON.decode(jresponse) or {}
 	local result = decoded_response['result']
 	local record = result[1]
@@ -51,15 +51,17 @@ function battery_module.handler(parsed_cli)
 		-- Get list of all user variables
 		t = _G.DomoticzUrl .. '/json.htm?type=command&param=getuservariables'
 		Print_to_Log(0, 'JSON request <' .. t .. '>')
-		jresponse, status = _G.HTTP.request(t)
+		jresponse, status = _G.Perform_Webquery(t, 99, 3)
 		decoded_response = _G.JSON.decode(jresponse) or {}
 		result = decoded_response['result']
 		idx = 0
-		for k, record in pairs(result) do
-			if type(record) == 'table' then
-				if record['Name'] == 'DevicesWithBatteries' then
-					Print_to_Log(record['idx'])
-					idx = record['idx']
+		if result then
+			for k, record in pairs(result) do
+				if type(record) == 'table' then
+					if record and record['Name'] == 'DevicesWithBatteries' then
+						Print_to_Log(record['idx'])
+						idx = record['idx']
+					end
 				end
 			end
 		end
@@ -70,7 +72,8 @@ function battery_module.handler(parsed_cli)
 		-- Get user variable DevicesWithBatteries
 		t = _G.DomoticzUrl .. '/json.htm?type=command&param=getuservariable&idx=' .. idx
 		Print_to_Log(0, 'JSON request <' .. t .. '>')
-		jresponse, status = _G.HTTP.request(t)
+		jresponse, status = _G.Perform_Webquery(t, 99, 3)
+		-- jresponse, status = _G.HTTP.request(t)
 		decoded_response = _G.JSON.decode(jresponse) or {}
 		result = decoded_response['result']
 		record = result[1]

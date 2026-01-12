@@ -12,14 +12,13 @@ function PerformDomoticzRequest(dUrl, retries, loglevel)
 	retries = retries or 1
 	local domoticz_tries = 0
 	dUrl = _G.DomoticzUrl .. '/json.htm?' .. dUrl
-	Print_to_Log(9, 'JSON request <' .. dUrl .. '>')
+	Print_to_Log(99, 'JSON request <' .. dUrl .. '>')
 	local decoded_response, jresponse, status
 	-- So just keep trying after 1 second sleep
 	while (jresponse == nil) do
 		domoticz_tries = domoticz_tries + 1
 		-- set timeout to 3 sec
-		_G.HTTP.TIMEOUT = (3)
-		jresponse, status = _G.HTTP.request(dUrl)
+		jresponse, status = _G.Perform_Webquery(dUrl, 99, 3)
 		if (jresponse ~= nil) then
 			break
 		end
@@ -27,7 +26,7 @@ function PerformDomoticzRequest(dUrl, retries, loglevel)
 			Print_to_Log(9, 'No response from domoticz:' .. domoticz_tries)
 			break
 		end
-		_G.SOCKET.sleep(1)
+		os.execute('sleep 1')
 	end
 	--
 	Print_to_Log(9, '<< status:' .. (status or '??') .. '  response <' .. (jresponse or '??') .. '>')
@@ -372,7 +371,7 @@ function Domo_Devinfo_From_Name(idx, DeviceName, DeviceScene)
 							if string.find(LevelNames, '[|,]+') then
 								Print_to_Log(2, '--  < 4.9700 selector switch levelnames: ', LevelNames)
 							else
-								LevelNames = _G.MIME.unb64(LevelNames)
+								LevelNames = _G.Base64_Decode(LevelNames)
 								Print_to_Log(2, '--  >= 4.9700  decoded selector switch levelnames: ', LevelNames)
 							end
 						end

@@ -1,6 +1,6 @@
 <?php
 
-function getLatestDockerHubTag(): array
+function getLatestDockerHubTag($tag = 'latest'): array
 {
     $namespace = 'jvdzande';
     $repo      = 'dtgbotmenu';
@@ -38,20 +38,29 @@ function getLatestDockerHubTag(): array
              <=> strtotime($a['tag_last_pushed'] ?? 0);
     });
 
-    $latest = $data['results'][0];
+    $tagdata = $data['results'][0];
     $lastver = $data['results'][1];
+    $digest = '';
 
+    // find tag=$tag (latest or prerelease)
+    for ($i = 1; $i < count($data['results']); $i++) {
+        if ($tag == $data['results'][$i]['name']) {
+            $digest = $data['results'][$i]['digest'];
+            $tagdata = $data['results'][$i];
+            break;
+        }
+    }
     // find tag=vx.x.x for the same digest used with tag='latest'
     for ($i = 1; $i < count($data['results']); $i++) {
-        if (substr($data['results'][$i]['name'],0,1) == "v" && $latest['digest'] == $data['results'][$i]['digest']) {
+        if ($digest == $data['results'][$i]['digest'] && substr($data['results'][$i]['name'],0,1) == "v") {
             $lastver = $data['results'][$i];
             break;
         }
     }
     return [
-        'tag'     => $latest['name'],
-        'pushed'  => $latest['tag_last_pushed'],
-        'digest'  => $latest['images'][0]['digest'] ?? null,
+        'tag'     => $tagdata['name'],
+        'pushed'  => $tagdata['tag_last_pushed'],
+        'digest'  => $digest,
         'vtag'     => $lastver['name'],
         'vpushed'     => $lastver['tag_last_pushed']
     ];

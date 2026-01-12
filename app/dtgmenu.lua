@@ -1,4 +1,4 @@
-_G.dtgmenu_version = '1.0 202512221733'
+_G.dtgmenu_version = '1.0 202512231627'
 -- ============================================================================================================
 -- ============================================================================================================
 -- Menu script which enables the option in DTGBOT to use a reply keyboard to perform actions on:
@@ -263,7 +263,7 @@ function MakeRoomMenus(iLevel, iSubmenu)
               if string.find(LevelNames, '[|,]+') then
                 Print_to_Log(2, '--  < 4.9700 selector switch levelnames: ', LevelNames)
               else
-                LevelNames = _G.MIME.unb64(LevelNames)
+								LevelNames = _G.Base64_Decode(LevelNames)
                 Print_to_Log(2, '--  >= 4.9700  decoded selector switch levelnames: ', LevelNames)
               end
             end
