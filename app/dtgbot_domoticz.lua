@@ -1,4 +1,4 @@
-_G.dtg_domoticz_version = '1.0 202512281609'
+_G.dtg_domoticz_version = '1.0 202512271300'
 --[[
 	A set of support functions used for DTGBOT
 	Developer: Jos v.d.Zande
