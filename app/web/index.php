@@ -20,26 +20,32 @@ if (strtolower(getenv('CHECK4UPDATES')) == 'y') {
     if (!isset($_SESSION['lastchecktime'])) {
         $_SESSION['lastchecktime'] = 0;
     }
+    $_SESSION['lastchecktime'] = 0;
     if ((time() - intval($_SESSION['lastchecktime'])) < 3600) {
         $latestVersion = $_SESSION['lastcheckversion'];
     } else {
         $dockerversion = '';
         try {
-            $dockerversion = getLatestDockerHubTag();
+            if (strpos($runningVersion, '-dev')) {
+                $dockerversion = getLatestDockerHubTag('prerelease');
+            } else {
+                $dockerversion = getLatestDockerHubTag('latest');
+            }
+            $latestVersion = $dockerversion['vtag'] ?? 'N/A';
+            if ($dockerversion['tag'] == 'prerelease') {
+                $latestVersion .= '-dev';
+            }
         } catch (Exception $e) {
             $dockerversion = 'error getting version:' . $e->getMessage();
         }
-        $latestVersion = $dockerversion['vtag'] ?? 'N/A';
     }
 
     if ($latestVersion == 'N/A' ) {
         $runningVersion .= ' (unable to retrieve last version from hub.docker.com)';
     } else {
-        if ($runningVersion != $latestVersion) {
+        if ($runningVersion != $latestVersion ) {
             $runningVersion .= ' (Update available: ' . $latestVersion . ')';
-        } //else {
-            // $runningVersion .= ' (last version)';
-        //}
+        }
         $_SESSION['lastcheckversion'] = $latestVersion;
         $_SESSION['lastchecktime'] = time();
     }
