@@ -18,7 +18,8 @@ local function get_temperature(DeviceName)
 	end
 
 	print('JSON request <' .. t .. '>');
-	local jresponse, status = _G.HTTP.request(t)
+	-- local jresponse, status = _G.HTTP.request(t)
+	local	jresponse, status = _G.Perform_Webquery(t, 99, 3)
 	local decoded_response = _G.JSON.decode(jresponse) or {}
 	local result = decoded_response['result']
 	local record = result[1]

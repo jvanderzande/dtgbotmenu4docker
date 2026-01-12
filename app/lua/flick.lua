@@ -33,26 +33,21 @@ function flick_module.handler(parsed_cli)
 	Print_to_Log(0, 'in flick_handler!');
 	t = _G.DomoticzUrl .. '/json.htm?type=command&param=switchlight&idx=' .. idx .. '&switchcmd=' .. state .. '&level=0';
 	Print_to_Log(0, 'JSON request <' .. t .. '>');
-	jresponse, status = _G.HTTP.request(t)
-	Print_to_Log(0, 'raw jason', jresponse)
-	--[[ not sure what this should do here as match_type and mode are undefined!
-	decoded_response = _G.JSON.decode(jresponse) or {}
-	if type(decoded_response) == 'table' then
-		for k, record in pairs(decoded_response) do
-			Print_to_Log(0, k, type(record))
-			if type(record) == 'table' then
-				for k1, v1 in pairs(record) do
-					if string.find(string.lower(v1.Type), match_type) then
-						response = response .. List_Device_Attr(v1, mode) .. '\n';
-					end
-					Print_to_Log(0, k1, v1)
-				end
+	jresponse, status = _G.Perform_Webquery(t, 99, 3)
+	Print_to_Log(9, 'raw jason', jresponse)
+	if status == 200 then
+		decoded_response = _G.JSON.decode(jresponse) or {}
+		if type(decoded_response) == 'table' then
+			if decoded_response['status'] == 'OK' then
+				response = 'switch flicked ' .. idx .. ' to ' .. state
 			else
-				Print_to_Log(0, record)
+				response = 'Error: flick ' .. idx .. ' to ' .. state .. ' failed'
 			end
 		end
+	else
+		response = "Error Domoticz request rc = " .. tostring(status or '?')
 	end
-	]]
+
 	return status, response;
 end
 

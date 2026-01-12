@@ -25,7 +25,7 @@ function dprint($itxt)
     global $debug, $DTGBotDataPath;
     if($debug) {
         //print($itxt);
-        file_put_contents($DTGBotDataPath . 'logs/config_update.log', $itxt, FILE_APPEND);
+        file_put_contents($DTGBotDataPath . 'logs/dtgbot_config_update.log', $itxt, FILE_APPEND);
     }
 }
 function dprint_r($itxt)
@@ -34,7 +34,7 @@ function dprint_r($itxt)
     ;
     if($debug) {
         //print_r($itxt);
-        file_put_contents($DTGBotDataPath . 'logs/config_update.log', json_encode($itxt, JSON_FORCE_OBJECT + JSON_PRETTY_PRINT), FILE_APPEND);
+        file_put_contents($DTGBotDataPath . 'logs/dtgbot_config_update.log', json_encode($itxt, JSON_FORCE_OBJECT + JSON_PRETTY_PRINT), FILE_APPEND);
     }
 }
 // Get Current configs
