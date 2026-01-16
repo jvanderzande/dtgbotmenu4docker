@@ -191,16 +191,17 @@ function rotateLogfile(string $file, bool $pforced = false): void
         return;
     }
 
+    // save dtgbot.log to prevdtgbot.log for display purposes
+    if ($file == 'dtgbot.log') {
+        copy($file, $prevfile);
+    }
+
     // truncate + init line
     file_put_contents(
         $file,
         date('Y-m-d H:i:s') . "=============== Logfile $file rotated to -> {$rotated} =======================\n"
     );
 
-    // save dtgbot.log to prevdtgbot.log for display purposes
-    if ($file == 'dtgbot.log') {
-        copy($file, 'prev_dtgbot.log');
-    }
     // compress rotated file
     exec('gzip ' . escapeshellarg($rotated));
 
