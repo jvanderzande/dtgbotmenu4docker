@@ -7,15 +7,17 @@ function DevicesScenes(parsed_cli)
 	local getDevStatus = false
 	local devcontains = false
 	for index, value in ipairs(parsed_cli) do
-		if value:sub(1,1) == '-' then
-			if value:find('s', 2) then
-				getDevStatus = true
+		if index > 2 then
+			if value:sub(1,1) == '-' then
+				if value:find('s', 2) then
+					getDevStatus = true
+				end
+				if value:find('c', 2) then
+					devcontains = true
+				end
+			else
+				qualifier = value
 			end
-			if value:find('c', 2) then
-				devcontains = true
-			end
-		else
-			qualifier = value
 		end
 	end
 	local response = ''

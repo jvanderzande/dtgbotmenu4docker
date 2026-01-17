@@ -38,9 +38,9 @@ if ($checklog == 'y') {
 // get the text compressed duplicate lines
 $logtext = get_log($file, true);
 $curlogrecords = count(explode("\n", $logtext));
-if ( $curlogrecords < 50 ) {
+if ( $curlogrecords < 200 ) {
     // get last rotated log and add the last 50 lines to the current returned log
-    $logtext = get_log($prevfile, true, 50-$curlogrecords) . "\n" . $logtext;
+    $logtext = get_log($prevfile, true, 200-$curlogrecords) . "\n" . $logtext;
 };
 
 preg_match_all("|Telegram ChatID ([-\d]*) Not in ChatIDWhiteList|U",$logtext, $out, PREG_PATTERN_ORDER);
@@ -154,6 +154,7 @@ function rotateLogs(string $files="dtg*.log", bool $pforced = false): void
 // process single logfile
 function rotateLogfile(string $file, bool $pforced = false): void
 {
+    global $prevfile;
     /* ---------------- configuration ---------------- */
     $logDir   = '/data/logs';
     $maxSize  = (getenv('LOG_MAX_SIZE') == '' ? 1 : (int) getenv('LOG_MAX_SIZE')) * 1024 * 1024;   // 1 MB
