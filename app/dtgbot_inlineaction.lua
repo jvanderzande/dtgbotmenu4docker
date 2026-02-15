@@ -1,4 +1,4 @@
-_G.dtgbot_inlineaction_version = '1.0 202512181633'
+_G.dtgbot_inlineaction_version = '1.0 202602152140'
 
 --[[
 	Script to support the Inline Menu options for any telegram message DTGBOT
@@ -154,6 +154,12 @@ local function perform_action(parsed_cli, SendTo, MessageId, org_replymarkup)
 			if action:sub(1, 9):lower() == 'set level' then
 				local sValue = action:sub(11)
 				Print_to_Log(3, '1. updated Set Level:' .. sValue .. '=' .. sValue:gsub('[%s%%]', ''))
+				-- Set the proper level to set the dimmer
+				action = string.format('Set Level %.0f', sValue:gsub('[%s%%]', '')) -- remove % & decimals
+				Print_to_Log(3, ' updated Set Level:' .. action)
+			elseif action:match('^%d+%s*%%?$') then
+				local sValue = action
+				Print_to_Log(3, '2. updated Set Level:' .. sValue .. '=' .. sValue:gsub('[%s%%]', ''))
 				-- Set the proper level to set the dimmer
 				action = string.format('Set Level %.0f', sValue:gsub('[%s%%]', '')) -- remove % & decimals
 				Print_to_Log(3, ' updated Set Level:' .. action)
