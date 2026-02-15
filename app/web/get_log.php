@@ -29,9 +29,15 @@ if ($clearlog == 'y') {
     rotateLogfile("dtgbot.log", true);
 }
 
+// moved this to a the main script to run once
 // check logrotation first
 rotateLogs();
+$compresslog = true;  // maybe an option later to optionally compress the
 if ($checklog == 'y') {
+    if ($compresslog) {
+       $logtext = get_log($file, true);
+       file_put_contents($file, get_log($file, true));
+    }
     die("Log rotation checked.\n");
 }
 
@@ -120,10 +126,8 @@ function compressDuplicateLogMessages(string $logtext): string
             }
         } else {
             // keep first, indicate skipped count, keep last
-            $out[] = $lines[$i];
-            $skipped = $run - 2;
-            $out[] = "--> skipped {$skipped} similar messages.";
-            $out[] = $lines[$j - 1];
+            $skipped = $run;
+            $out[] = substr($lines[$j - 1],0 , 20) . ">{$skipped}x" . substr($lines[$j - 1],20);
         }
 
         $i = $j;
