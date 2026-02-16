@@ -1,4 +1,4 @@
-_G.dtgbot_version = '1.0 202601091707'
+_G.dtgbot_version = '1.0 202602161057'
 --[[
 	Main process for DTGBOT
 	Developer: jvdzande
@@ -445,6 +445,11 @@ local xreturn_status, xresult =
 							Print_to_Log(-1, _G.Sprintf('### rc:%s Is there another Longpoll or Webhook active for this bot? response: %s', (status or '?'), (response or '?')))
 							telegram_connected = false
 						end
+					elseif status == 429 then
+						-- error_code":429,"description":"Too Many Requests: retry after 5"
+						Print_to_Log(0, _G.Sprintf('Longpoll ended with rc:%s response:%s', status, (response or '?')))
+						os.execute('sleep 6')
+						response = ''
 					else
 						Print_to_Log(0, _G.Sprintf('Longpoll ended with rc:%s response:%s', status, (response or '?')))
 						-- status <> 200 ==> error?
