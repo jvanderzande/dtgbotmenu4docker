@@ -2,9 +2,8 @@ name: Build and Push Docker Image.
 
 on:
   release:
-    types:
-      - created  # Trigger only when a new release is created
-
+    types: [created]    # - created  # Trigger only when a new release is created
+  workflow_dispatch:
 jobs:
   build:
     runs-on: ubuntu-latest
