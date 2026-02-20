@@ -40,7 +40,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           push: ${{ github.event_name != 'pull_request' }}
-          platforms: linux/amd64,linux/arm/v7  # Add ARMv7 support
+          platforms: linux/amd64,linux/arm/v7,linux/arm64  # Add ARMv7 support
           tags: |
             ${{ vars.DOCKER_USERNAME }}/dtgbotmenu:${{ github.event.release.tag_name }}
             ${{ vars.DOCKER_USERNAME }}/dtgbotmenu:${{ github.event.release.prerelease && 'prerelease' || 'latest' }}
