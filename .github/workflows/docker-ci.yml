@@ -1,54 +1,98 @@
-name: Build and Push Docker Image.
+name: Build and Push Docker Image
 
 on:
   release:
-    types: [created]    # - created  # Trigger only when a new release is created
-  workflow_dispatch:
+    types: [created]    # Trigger automatically on new release
+  workflow_dispatch:    # Allow manual runs
+
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
+      # -----------------------------
+      # Checkout repo
+      # -----------------------------
       - name: Checkout
         uses: actions/checkout@v4
 
+      # -----------------------------
+      # Determine release tag
+      # -----------------------------
+      - name: Determine release tag
+        id: release_tag
+        run: |
+          if [ "${GITHUB_EVENT_NAME}" = "release" ]; then
+            # Triggered by release ? use release tag
+            TAG="${GITHUB_EVENT_RELEASE_TAG_NAME:-${GITHUB_REF##refs/tags/}}"
+          else
+            # Manual run ? get latest release tag from GitHub API
+            TAG=$(curl -s https://api.github.com/repos/${GITHUB_REPOSITORY}/releases/latest | jq -r .tag_name)
+          fi
+          echo "Using tag: $TAG"
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
+
+      # -----------------------------
+      # Extract repo name (strip owner)
+      # -----------------------------
+      - name: Extract repo name
+        id: repo_name
+        run: |
+          REPO_NAME="${GITHUB_REPOSITORY#*/}"
+          echo "repo=${REPO_NAME}" >> $GITHUB_OUTPUT
+
+      # -----------------------------
+      # Extract Docker metadata
+      # -----------------------------
       - name: Extract Docker image metadata
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ${{ vars.DOCKER_USERNAME }}/dtgbotmenu
-          tags: ${{ github.event.release.tag_name }}
+          images: ${{ vars.DOCKER_USERNAME }}/${{ steps.repo_name.outputs.repo }}
+          tags: ${{ steps.release_tag.outputs.tag }}
           labels: |
-            org.opencontainers.image.title=dtgbotmenu
-            org.opencontainers.image.description=Telegram Bot Menu for Domoticz
+            org.opencontainers.image.title=${{ steps.repo_name.outputs.repo }}
+            org.opencontainers.image.description=Docker image for ${{ steps.repo_name.outputs.repo }}
             org.opencontainers.image.url=https://github.com/${{ github.repository }}
             org.opencontainers.image.source=https://github.com/${{ github.repository }}
-            org.opencontainers.image.version=${{ github.event.release.tag_name }}
+            org.opencontainers.image.version=${{ steps.release_tag.outputs.tag }}
             org.opencontainers.image.revision=${{ github.sha }}
             org.opencontainers.image.licenses=MIT
 
+      # -----------------------------
+      # Docker Hub login
+      # -----------------------------
       - name: Log in to Docker Hub
         uses: docker/login-action@v3
         with:
           username: ${{ vars.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
+      # -----------------------------
+      # Set up Docker Buildx for multi-arch
+      # -----------------------------
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
+      # -----------------------------
+      # Build and push Docker images
+      # -----------------------------
       - name: Build and push Docker image
         uses: docker/build-push-action@v6
         with:
           push: ${{ github.event_name != 'pull_request' }}
-          platforms: linux/amd64,linux/arm/v7,linux/arm64  # Add ARMv7 support
+          platforms: linux/amd64,linux/arm/v7,linux/arm64
           tags: |
-            ${{ vars.DOCKER_USERNAME }}/dtgbotmenu:${{ github.event.release.tag_name }}
-            ${{ vars.DOCKER_USERNAME }}/dtgbotmenu:${{ github.event.release.prerelease && 'prerelease' || 'latest' }}
+            ${{ vars.DOCKER_USERNAME }}/${{ steps.repo_name.outputs.repo }}:${{ steps.release_tag.outputs.tag }}
+            ${{ vars.DOCKER_USERNAME }}/${{ steps.repo_name.outputs.repo }}:latest
           annotations: ${{ steps.meta.outputs.annotations }}
           provenance: true
           sbom: true
           build-args: |
-            GIT_RELEASE=${{ github.event.release.tag_name }}${{ github.event.release.prerelease && '-dev' || '' }}
+            GIT_RELEASE=${{ steps.release_tag.outputs.tag }}
 
+      # -----------------------------
+      # Upload README.md to Docker Hub
+      # -----------------------------
       - name: Upload README.md to Docker Hub
         env:
           DOCKERHUB_USERNAME: ${{ vars.DOCKER_USERNAME }}
@@ -67,4 +111,4 @@ jobs:
             -H "Authorization: JWT ${TOKEN}" \
             -H "Content-Type: application/json" \
             -d "{\"full_description\": ${DESCRIPTION}}" \
-            https://hub.docker.com/v2/repositories/${DOCKERHUB_USERNAME}/dtgbotmenu/
+            https://hub.docker.com/v2/repositories/${DOCKERHUB_USERNAME}/${{ steps.repo_name.outputs.repo }}/

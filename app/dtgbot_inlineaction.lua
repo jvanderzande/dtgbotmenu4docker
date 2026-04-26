@@ -1,4 +1,4 @@
-_G.dtgbot_inlineaction_version = '1.0 202602152140'
+_G.dtgbot_inlineaction_version = '1.0 202603272237'
 
 --[[
 	Script to support the Inline Menu options for any telegram message DTGBOT
@@ -18,7 +18,7 @@ _G.dtgbot_inlineaction_version = '1.0 202602152140'
 			&reply_markup={"inline_keyboard":[[
 				{"text":"On","callback_data":"ia DeviceName on"},
 				{"text":"Off","callback_data":"ia DeviceName off"},
-				{"text":"exit","callback_data":"ia DeviceName exit"},
+				{"text":"exit","callback_data":"ia exit"},
 			] ] }
 
 	Example for a dimmer
