@@ -47,11 +47,11 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ${{ vars.DOCKER_USERNAME }}/${{ steps.repo_name.outputs.repo }}
+          images: ${{ vars.DOCKER_USERNAME }}/dtgbotmenu
           tags: ${{ steps.release_tag.outputs.tag }}
           labels: |
-            org.opencontainers.image.title=${{ steps.repo_name.outputs.repo }}
-            org.opencontainers.image.description=Docker image for ${{ steps.repo_name.outputs.repo }}
+            org.opencontainers.image.title=dtgbotmenu
+            org.opencontainers.image.description=Docker image for dtgbotmenu
             org.opencontainers.image.url=https://github.com/${{ github.repository }}
             org.opencontainers.image.source=https://github.com/${{ github.repository }}
             org.opencontainers.image.version=${{ steps.release_tag.outputs.tag }}
@@ -82,8 +82,8 @@ jobs:
           push: ${{ github.event_name != 'pull_request' }}
           platforms: linux/amd64,linux/arm/v7,linux/arm64
           tags: |
-            ${{ vars.DOCKER_USERNAME }}/${{ steps.repo_name.outputs.repo }}:${{ steps.release_tag.outputs.tag }}
-            ${{ vars.DOCKER_USERNAME }}/${{ steps.repo_name.outputs.repo }}:latest
+            ${{ vars.DOCKER_USERNAME }}/dtgbotmenu:${{ steps.release_tag.outputs.tag }}
+            ${{ vars.DOCKER_USERNAME }}/dtgbotmenu:latest
           annotations: ${{ steps.meta.outputs.annotations }}
           provenance: true
           sbom: true
@@ -111,4 +111,4 @@ jobs:
             -H "Authorization: JWT ${TOKEN}" \
             -H "Content-Type: application/json" \
             -d "{\"full_description\": ${DESCRIPTION}}" \
-            https://hub.docker.com/v2/repositories/${DOCKERHUB_USERNAME}/${{ steps.repo_name.outputs.repo }}/
+            https://hub.docker.com/v2/repositories/${DOCKERHUB_USERNAME}/dtgbotmenu/
