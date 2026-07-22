@@ -1,4 +1,4 @@
-_G.dtg_main_functions_version = '1.0 202601091832'
+_G.dtg_main_functions_version = '1.0 202607221218'
 _G.msgids_removed = {}
 --[[
 	Functions library for the Main process in DTGBOT
@@ -542,7 +542,7 @@ function HandleCommand(cmd, SendTo, Group, MessageId, chat_type)
 				local params = string.sub(cmd, string.len(cmda) + 1)
 				for line in f:lines() do
 					Print_to_Log(2, 'checking line ' .. line)
-					if (line:match(cmda)) then
+					if (line.lower():match(cmda)) then
 						Print_to_Log(0, _G.Sprintf('->run bash command %s %s %s', line, SendTo, params))
 						-- run bash script and collect returned text.
 						Print_to_Log(0, 'cmd:bash ' .. bashpath .. line .. ' ' .. SendTo .. ' ' .. params)
