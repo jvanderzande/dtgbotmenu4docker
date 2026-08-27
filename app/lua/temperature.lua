@@ -117,7 +117,7 @@ function temperature_module.handler(parsed_cli)
 		end
 	else
 		-- Get list of all user variables
-		idx = Domo_Idx_From_Variable_Name('DevicesWithTemperatures')
+		idx = _G.Variablelist['DevicesWithTemperatures'].idx
 		if idx == 0 then
 			Print_to_Log(0, 'User Variable DevicesWithTemperatures not set in Domoticz')
 			return 1, 'User Variable DevicesWithTemperatures not set in Domoticz'

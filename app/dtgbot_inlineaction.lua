@@ -1,4 +1,4 @@
-_G.dtgbot_inlineaction_version = '1.0 202603272237'
+_G.dtgbot_inlineaction_version = '1.0 202608271632'
 
 --[[
 	Script to support the Inline Menu options for any telegram message DTGBOT
@@ -45,6 +45,15 @@ _G.dtgbot_inlineaction_version = '1.0 202603272237'
 				{"text":"19.0c", "callback_data":"ia DeviceName3 udevice 19 -t"},
 				{"text":"exit",  "callback_data":"ia exit"},
 				] ] }
+
+	Example for a variable update:
+		https://api.telegram.org/bot123456890:aaa...xxx/sendMessage?
+			chat_id=123456789
+			&text=actions for DeviceName
+			&reply_markup={"inline_keyboard":[ [
+					{"text":"Reset uservar to value","callback_data":"ia uservar varname value"},
+				] ] }
+
 
 	Callback_Data format: inlineaction DeviceName Action [-st]
 		DeviceName -> Domoticz DeviceName to perform the action for. Optional
@@ -112,14 +121,59 @@ local function perform_action(parsed_cli, SendTo, MessageId, org_replymarkup)
 			response = ''
 		end
 		return 1, response, replymarkup
-	end
+	elseif action == 'remove' then
 	-- remove message and keyboard when remove is defined as action
-	if action == 'remove' then
 		response = 'remove'
 		replymarkup = 'remove'
 		return 1, response, replymarkup
+	elseif DeviceName == 'uservar' then
+		Print_to_Log(3, 'SendTo:' .. SendTo)
+		Print_to_Log(3, 'MessageId:' .. MessageId)
+		Print_to_Log(3, 'action:' .. action)
+		-- Update UserList table
+		_G.Variablelist = Domo_Variable_List_Names_IDXs()
+		-- split uservar name and value from action field
+		local UservarName, UservarValue = action:match('([^%s]+)%s-(.*)')
+		UservarName = (UservarName or '') :match('%s*(.*)%s*') -- trim spaces
+		UservarValue = (UservarValue or ''):match('%s*(.*)%s*') -- trim spaces
+		Print_to_Log(3, 'UservarName:' .. UservarName)
+		Print_to_Log(3, 'UservarValue:' .. UservarValue)
+		if not _G.Variablelist[UservarName] or UservarName == '' then
+			replymarkup = ''
+			response = 'Unknown uservar ' .. UservarName
+			return 1, response, replymarkup
+		end
+		local uidx = _G.Variablelist[UservarName].idx
+		local utype = _G.Variablelist[UservarName].type
+		if uidx == 0 then
+			replymarkup = ''
+			response = 'Unknown uservar ' .. UservarName
+			return 1, response, replymarkup
+		end
+		if UservarValue == '' then
+			Print_to_Log(3, '????? UservarValue:' .. UservarValue ..'|')
+		end
+		if UservarValue == 'get' or UservarValue == '' then
+			-- Get user variable DevicesWithTemperature
+			UservarValue = Domo_Get_Variable_Value(uidx)
+			replymarkup = ''
+			response = 'uservar ' .. UservarName .. '=' .. UservarValue
+		else
+			-- set the value of the uservar
+			Print_to_Log(3, 'uidx:' .. uidx)
+			Print_to_Log(3, 'UservarName:' .. UservarName)
+			Print_to_Log(3, 'utype:' .. (utype or '?'))
+			Print_to_Log(3, 'UservarValue:' .. tostring(UservarValue))
+			local urlresponse, status = Domo_Set_Variable_Value(uidx, UservarName, utype, tostring(UservarValue))
+			if status == 200 then
+				response = 'uservar ' .. UservarName .. ' set to ' .. UservarValue
+			else
+				response = 'uservar ' .. UservarName .. ' not set to ' .. UservarValue .. " Status:" .. status .. '  Response:' .. ((urlresponse or {}).message or '')
+			end
+		end
+		return 1, response, replymarkup
 	end
-	-- process the action
+	-- process the action as Device or Scene
 	response = ''
 	replymarkup = org_replymarkup -- set markup to the same as the original
 	status = 1

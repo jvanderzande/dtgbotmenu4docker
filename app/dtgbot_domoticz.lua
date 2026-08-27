@@ -1,4 +1,4 @@
-_G.dtg_domoticz_version = '1.0 202604261947'
+_G.dtg_domoticz_version = '1.0 202608271553'
 --[[
 	A set of support functions used for DTGBOT
 	Developer: Jos v.d.Zande
@@ -12,13 +12,13 @@ function PerformDomoticzRequest(dUrl, retries, loglevel)
 	retries = retries or 1
 	local domoticz_tries = 0
 	dUrl = _G.DomoticzUrl .. '/json.htm?' .. dUrl
-	Print_to_Log(99, 'JSON request <' .. dUrl .. '>')
+	Print_to_Log(9, 'JSON request <' .. dUrl .. '>')
 	local decoded_response, jresponse, status
 	-- So just keep trying after 1 second sleep
 	while (jresponse == nil) do
 		domoticz_tries = domoticz_tries + 1
 		-- set timeout to 3 sec
-		jresponse, status = _G.Perform_Webquery(dUrl, 99, 3)
+		jresponse, status = _G.Perform_Webquery(dUrl, 9, 3)
 		if (jresponse ~= nil) then
 			break
 		end
@@ -134,15 +134,13 @@ function Domo_Variable_List_Names_IDXs()
 		for i = 1, #result do
 			record = result[i]
 			if type(record) == 'table' then
-				variables[record['Name']] = record['idx']
+				variables[record['Name']] = {}
+				variables[record['Name']].idx = record['idx']
+				variables[record['Name']].type = record['Type']
 			end
 		end
 	end
 	return variables
-end
-
-function Domo_Idx_From_Variable_Name(DeviceName)
-	return Variablelist[DeviceName]
 end
 
 -- returns the value of the variable from the idx
@@ -166,11 +164,7 @@ end
 function Domo_Set_Variable_Value(idx, name, Type, value)
 	-- store the value of a user variable
 	local dUrl = 'type=command&param=updateuservariable&idx=' .. idx .. '&vname=' .. name .. '&vtype=' .. Type .. '&vvalue=' .. tostring(value)
-	local decoded_response, status = PerformDomoticzRequest(dUrl, 2)
-	if status == 200 then
-		return true
-	end
-	return false
+	return PerformDomoticzRequest(dUrl, 2)
 end
 
 -- ### Not Used currently

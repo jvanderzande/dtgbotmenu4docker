@@ -1,4 +1,4 @@
-_G.dtg_main_functions_version = '1.0 202607221218'
+_G.dtg_main_functions_version = '1.0 202608271515'
 _G.msgids_removed = {}
 --[[
 	Functions library for the Main process in DTGBOT
@@ -134,7 +134,7 @@ function _G.DtgBot_Initialise()
 	--Set global variables _G.DomoticzRevision _G.DomoticzVersion
 	Print_to_Log(-1, 'Domoticz version :' .. _G.DomoticzVersion .. '  Revision:' .. _G.DomoticzRevision .. '  BuildDate:' .. _G.DomoticzBuildDate)
 	Print_to_Log(-1, 'Domoticz url used:' .. _G.DomoticzUrl:gsub('//.*@', '//'))
-	Variablelist = Domo_Variable_List_Names_IDXs()
+	_G.Variablelist = Domo_Variable_List_Names_IDXs()
 	Print_to_Log(2, 'Get Devices   --------------------------------------------------')
 	_G.DevicelistByName, _G.DevicelistByIDX = Domo_Get_Device_Information('devices')
 	Print_to_Log(2, 'Get Scenes    --------------------------------------------------')
@@ -541,8 +541,12 @@ function HandleCommand(cmd, SendTo, Group, MessageId, chat_type)
 				local len_parsed_command = #parsed_command
 				local params = string.sub(cmd, string.len(cmda) + 1)
 				for line in f:lines() do
-					Print_to_Log(2, 'checking line ' .. line)
-					if (line.lower():match(cmda)) then
+					-- only run first found command
+					if found then
+						break
+					end
+					Print_to_Log(2, 'checking line ' .. line .. ' for starting with' .. cmda)
+					if (line:lower():match("^" .. cmda)) then
 						Print_to_Log(0, _G.Sprintf('->run bash command %s %s %s', line, SendTo, params))
 						-- run bash script and collect returned text.
 						Print_to_Log(0, 'cmd:bash ' .. bashpath .. line .. ' ' .. SendTo .. ' ' .. params)
