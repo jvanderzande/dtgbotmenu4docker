@@ -1,4 +1,4 @@
-_G.dtg_domoticz_version = '1.0 202608271553'
+_G.dtg_domoticz_version = '1.0 202608271649'
 --[[
 	A set of support functions used for DTGBOT
 	Developer: Jos v.d.Zande
@@ -137,6 +137,11 @@ function Domo_Variable_List_Names_IDXs()
 				variables[record['Name']] = {}
 				variables[record['Name']].idx = record['idx']
 				variables[record['Name']].type = record['Type']
+				-- also add the lowercase version for case insensitivity
+				variables[record['Name']:lower()] = {}
+				variables[record['Name']:lower()].idx = record['idx']
+				variables[record['Name']:lower()].type = record['Type']
+				variables[record['Name']:lower()].name = record['Name']
 			end
 		end
 	end
