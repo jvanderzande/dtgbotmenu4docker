@@ -1,4 +1,4 @@
-_G.dtg_main_functions_version = '1.0 202608271515'
+_G.dtg_main_functions_version = '1.0 202609171436'
 _G.msgids_removed = {}
 --[[
 	Functions library for the Main process in DTGBOT
@@ -282,7 +282,7 @@ function PreProcess_Received_Message(tt)
 	end
 	-- No hard error process
 	if result_err3 == nil then
-		Print_to_Log(0, '<- Succesfully handled incoming request')
+		Print_to_Log(0, '<- Succesfully handled incoming request: ' .. result3)
 	else
 		if msg_type == 'voice' then
 			Print_to_Log(0, '!! Voice file received but voice.sh or lua not found to process it. skipping the message.')
@@ -611,6 +611,7 @@ function HandleCommand(cmd, SendTo, Group, MessageId, chat_type)
 		MessageId = nil
 		chat_type = ''
 	end
+	local stext = text
 	if text ~= '' then
 		-- send multiple message when larger than 4000 characters
 		while string.len(text) > 0 do
@@ -624,7 +625,8 @@ function HandleCommand(cmd, SendTo, Group, MessageId, chat_type)
 		end
 		Telegram_SendMessage(SendTo, text, MessageId, replymarkup, chat_type, handled_by)
 	end
-	return 'ok'
+
+	return stext
 end
 
 -- ==== Functions section ============================================================================

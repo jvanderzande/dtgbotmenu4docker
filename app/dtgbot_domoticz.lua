@@ -1,4 +1,4 @@
-_G.dtg_domoticz_version = '1.0 202608271649'
+_G.dtg_domoticz_version = '1.0 202609171327'
 --[[
 	A set of support functions used for DTGBOT
 	Developer: Jos v.d.Zande
@@ -404,6 +404,7 @@ function Domo_Devinfo_From_Name(idx, DeviceName, DeviceScene)
 			rDeviceName = DeviceName
 			SwitchType = ScenelistByIDX[idx]['SwitchType']
 			Type = ScenelistByIDX[idx]['Type']
+			status = ScenelistByIDX[idx]['Status']
 			found = 1
 		end
 	end
