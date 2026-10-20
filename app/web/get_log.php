@@ -74,7 +74,16 @@ if ($cnt > 0) {
     file_put_contents($ConfigUser, json_encode($CurrDTGBotConfig, JSON_UNESCAPED_SLASHES + JSON_FORCE_OBJECT + JSON_PRETTY_PRINT));
 }
 // return the text
-echo htmlspecialchars((string)$logtext);
+// read /tmp/dtgloop.txt and convert json string to php array
+$tstatusdata=file_get_contents('/tmp/dtgloop.txt');
+$astatusdata=json_decode($tstatusdata, true);
+echo '{';
+echo '"loopts": "' . filemtime('/tmp/dtgloop.txt') . '" ,';
+echo '"status": "' . $astatusdata['status'] . '" ,';
+echo '"connected": "' . $astatusdata['connected'] . '" ,';
+echo '"time": "' . $astatusdata['time'] . '" ,';
+echo '"data": "' .htmlspecialchars((string)str_replace("\n", "\\n", $logtext)) . '"';
+echo '}';
 
 function get_log($file, $compressed=false, $lastlines=0) {
     $logtext = file_get_contents($file);

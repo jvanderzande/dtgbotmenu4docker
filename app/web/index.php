@@ -220,7 +220,13 @@ if (strtolower(getenv('CHECK4UPDATES')) == 'y') {
             cache: false,
             async: true,
             timeout: 2000,
-            success: function(data) {
+            success: function(rdata) {
+                let jdata = JSON.parse(rdata);
+                let Tloopts = Number(jdata["loopts"]) || 0
+                let Tconnected = jdata["connected"]
+                let Tstatus = Number(jdata["status"])
+                let Ttime = new Date(jdata["time"]).getTime() || Tloopts * 1000
+                data = jdata["data"]
                 if (data == "Login Required") {
                     window.location.replace('/');
                 }
@@ -272,25 +278,18 @@ if (strtolower(getenv('CHECK4UPDATES')) == 'y') {
                 // process received & preprocessed text
                 pTot_LogMsg = (typeof(Tot_LogMsg) == "undefined" ? "" : Tot_LogMsg);
                 Tot_LogMsg = result.join("\n");
+                // Mark Telegram has issue when last cylce is older than 1 minute
+                document.getElementById("TelegramStatus").title = "Last loop: " + Math.round((Date.now() - Ttime)/1000) + " seconds ago. LastStatus: " + Tstatus + (Tconnected == "true" ? " -> Connected" : " => Not Connected!");
+                if (Tconnected == "true") {
+                    TelegramOK = true;
+                    document.getElementById("TelegramStatus").style.backgroundColor = "#c1f5c8";
+                } else {
+                    TelegramOK = false;
+                    document.getElementById("TelegramStatus").style.backgroundColor = "#fab2ac";
+                }
                 // Only update textarea when the log actually changed
-                var lastlines = lines.slice(-2);
-                var secondlast=lastlines[0] || "";
                 if (pTot_LogMsg != Tot_LogMsg) {
                     textarea.innerHTML = result.join("\n");
-                    // Check Telegram
-                    if (LastCycle == "" && secondlast.indexOf("-- Log cleared --") > 0) {
-                        LastCycle = secondlast.substring(0,19)
-                    }
-                    let tLastCycle = Date.parse(LastCycle);
-                    // Mark Telegram has issue when last cylce is older than 1 minute
-                    if (Date.now() - tLastCycle < 60000) {
-                        TelegramOK = true;
-                        document.getElementById("TelegramStatus").style.backgroundColor = "#c1f5c8";
-                    } else {
-                        TelegramOK = false;
-                        document.getElementById("TelegramStatus").style.backgroundColor = "#fab2ac";
-                    }
-
                     // Initialize CodeMirror only once
                     if (!myCodeMirror) {
                         myCodeMirror = CodeMirror.fromTextArea(textarea, {
@@ -461,9 +460,11 @@ if (strtolower(getenv('CHECK4UPDATES')) == 'y') {
                 data = JSON.parse(sdata);
                 if (data["status"] == "OK") {
                     document.getElementById("DomoticzStatus").style.backgroundColor = "#c1f5c8";
+                    document.getElementById("DomoticzStatus").title = "Ok";
                     DomoOK = true;
                 } else {
                     document.getElementById("DomoticzStatus").style.backgroundColor = "#fab2ac";
+                    document.getElementById("DomoticzStatus").title = sdata;
                     DomoOK = false;
                 }
             },
@@ -474,8 +475,10 @@ if (strtolower(getenv('CHECK4UPDATES')) == 'y') {
                 document.getElementById("DomoticzStatus").style.backgroundColor = "#fab2ac";
                 if (xhr.responseText === undefined) {
                     UpdateStatusField("Domoticz:" + xhr.statusText)
+                    document.getElementById("DomoticzStatus").title = xhr.statusText;
                 } else {
                     UpdateStatusField("Domoticz:" + xhr.responseText)
+                    document.getElementById("DomoticzStatus").title = xhr.responseText;
                 }
                 DomoOK = false;
             },

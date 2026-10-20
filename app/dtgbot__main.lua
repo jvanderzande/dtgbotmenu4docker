@@ -1,4 +1,4 @@
-_G.dtgbot_version = '1.0 202602161057'
+_G.dtgbot_version = '1.0 202610201433'
 --[[
 	Main process for DTGBOT
 	Developer: jvdzande
@@ -379,7 +379,7 @@ local xreturn_status, xresult =
 				-- loop till messages is received
 				while true do
 					-- Update monitorfile each loop
-					os.execute('echo ' .. os.date('%Y-%m-%d %H:%M:%S') .. ' > ' .. _G.BotCheckFile)
+					os.execute('echo "{\\"connected\\":\\"' .. tostring(telegram_connected) .. '\\",\\"status\\":\\"' .. status .. '\\",\\"time\\":\\"' .. os.date('%Y-%m-%d %H:%M:%S') .. '\\"}" > ' .. _G.BotCheckFile)
 					-- -----------------------------------------------------------------------------------------------------------
 					--> Start LongPoll to Telegram wrapper in it's own error checking routine
 					local return_status2, result2 =
@@ -437,7 +437,7 @@ local xreturn_status, xresult =
 							--Print_to_Log(3, 'response received:', response)
 							break
 						end
-						Print_to_Log(1, '- No bot messages, next longpoll..')
+						Print_to_Log(2, '- No bot messages, next longpoll..')
 						-- check if logrotation is required
 						CheckLogs()
 					elseif status == 409 then
