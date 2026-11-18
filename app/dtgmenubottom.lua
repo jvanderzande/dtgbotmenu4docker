@@ -1,4 +1,4 @@
-_G.dtgmenubottom_version = '1.0 202512221932'
+_G.dtgmenubottom_version = '1.0 202611181302'
 --[[
 	Script to support the Bottmon Menu Keyboard option for DTGBOT
 	Developer: jvdzande
@@ -60,7 +60,7 @@ function dtgmenubottom.makereplymenu(SendTo, Level, submenu, devicename)
       if MenuWhiteList[SendTo] then
         if MenuWhiteList[SendTo][get.RoomNumber]                                      -- SendTo -> has room number in the list
           or MenuWhiteList[SendTo]['99']                                              -- SendTo -> Show All
-          or (MenuWhiteList[SendTo]['0'] and MenuWhiteList['0'][get.RoomNumber]) then -- SendTo -> use defaults
+          or (MenuWhiteList['0'] and MenuWhiteList['0'][get.RoomNumber]) then -- SendTo -> use defaults
           Print_to_Log(3, SendTo .. ' MenuWhiteList Check room:' .. (get.RoomNumber) .. '/' .. i .. ' is Whitelisted. -> add room button')
         else
           Print_to_Log(2, SendTo .. ' MenuWhiteList Check room:' .. (get.RoomNumber) .. '/' .. i .. ' not Whitelisted! -> skip room button')

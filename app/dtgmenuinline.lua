@@ -1,4 +1,4 @@
-_G.dtgmenuinline_version = '1.0 202512221734'
+_G.dtgmenuinline_version = '1.0 202611181303'
 local dtgmenuinline = {}
 
 --[[
@@ -162,7 +162,7 @@ function dtgmenuinline.makereplymenu(SendTo, Level, submenu, devicename)
         AllowButton = true
         if get.RoomNumber then
           if MenuWhiteList[SendTo] then
-            if MenuWhiteList[SendTo][get.RoomNumber] or MenuWhiteList[SendTo]['99'] or (MenuWhiteList[SendTo]['0'] and MenuWhiteList['0'][get.RoomNumber]) then
+            if MenuWhiteList[SendTo][get.RoomNumber] or MenuWhiteList[SendTo]['99'] or (MenuWhiteList['0'] and MenuWhiteList['0'][get.RoomNumber]) then
               Print_to_Log(2, SendTo .. ' MenuWhiteList Check room:' .. (get.RoomNumber) .. '/' .. i .. ' is Whitelisted. -> add room button')
             else
               Print_to_Log(2, SendTo .. ' MenuWhiteList Check room:' .. (get.RoomNumber) .. '/' .. i .. ' not Whitelisted! -> skip room button')
